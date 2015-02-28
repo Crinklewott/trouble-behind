@@ -144,6 +144,52 @@ otherwise."
 	     `(you drop the ,item on the floor.))
       `(you dont have that.)))
 
+;; Game REPL functions
+(defun tb-eval (&rest input)
+  "Evaluates user input from (read) in a controlled manner and
+performs the respective game commands passed in."
+  (let* ((input (car input))
+	 (command (car input)))
+    (cond ((member command '(inventory i items))
+	   (inventory))
+	  ((member command '(look inspect describe l))
+	   (if (cdr input)
+	       (look-at (cadr input))
+	       (look)))
+	  ((member command '(get pickup))
+	   (if (cdr input)
+	       (pickup (cadr input))
+	       '(pick up what?)))
+	  ((member command '(drop leave))
+	   (if (cdr input)
+	       (drop (cadr input))
+	       '(drop what?)))
+	  ((member command '(walk go run))
+	   (if (cdr input)
+	       (walk (cadr input))
+	       '(walk where?)))
+	  ((member command '(n e s w))
+	   (tb-eval (cond ((eq command 'n) 'north)
+			  ((eq command 'e) 'east)
+			  ((eq command 's) 'south)
+			  ((eq command 'w) 'west))))
+	  ((member command
+		   (append '(north east south west)
+			   (mapcar #'car (get-edges *player-location*))))
+	   (walk command))
+	  (t '(huh?)))))
+
+(defun tb-loop ()
+  "Loops through user input passing it to tb-eval and stylyzing the
+output."
+  (loop for input = '(look)
+     then (read-from-string (concatenate 'string "(" (read-line) ")"))
+     when (eq (car input) 'quit)
+     return t
+     do (progn
+	  (princ (stylize-list (tb-eval input)))
+	  (fresh-line))))
+
 ;; Advaced metaprogramming thingies
 (defmacro when-player (&rest arg-list)
   "Checks if the player meets certain conditions in plain english. For example:
@@ -160,8 +206,7 @@ Any words the macro doesn't understand are simply ignored.
 Valid words are:
 - in, at <place>
 - has, holds <item>
-- see, sees <thing>
-"
+- see, sees <thing>"
   (labels ((parse (args acc)
 	     (let ((current (car args)))
 	       (when current
