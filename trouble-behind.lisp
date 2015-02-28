@@ -109,6 +109,6 @@ otherwise."
 (defun look ()
   "Outputs what the player sees around them."
   (append
-   (describe-node (get-node *player-location*))
+   (car (get-node *player-location*))
    (describe-edges (get-edges *player-location*))
    (describe-items-at-location (get-all-item-details) *player-location*)))
