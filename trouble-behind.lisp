@@ -99,12 +99,6 @@ otherwise."
     (or (eq location loc)
 	(eq 'inventory loc))))
 
-(defun look-at (item location)
-  "Gets the player to look at an item if they can see it."
-  (if (can-see item location)
-      (describe-item (get-item item))
-      `(you cannot see any ,item around here.)))
-
 ;; Player location-oriented functions
 (defun look ()
   "Outputs what the player sees around them."
@@ -113,6 +107,11 @@ otherwise."
    (describe-edges (get-edges *player-location*))
    (describe-items-at-location (get-all-item-details) *player-location*)))
 
+(defun look-at (item)
+  "Gets the player to look at an item if they can see it."
+  (if (can-see item *player-location*)
+      (car (get-item item))
+      `(you cannot see any ,item around here.)))
 
 (defun walk (direction)
   "Makes the player walk a specific direction if possible."
@@ -121,3 +120,25 @@ otherwise."
 	(progn (setf *player-location* (cadr edge))
 	       (look))
 	`(i cannot see anywhere ,direction of here.))))
+
+(defun inventory ()
+  "Returns the player's inventory"
+  (loop for item in (get-items)
+     when (eq (item-location (car item)) 'inventory)
+     collect (car item)))
+
+(defun pickup (item)
+  "Lets the player pick up an item and put it in their inventory."
+  (if (can-see item *player-location*)
+      (if (member item (inventory))
+	  '(you already have that.)
+	  (progn (push (cons item 'inventory) *item-locations*)
+	    `(you pick up the ,item)))
+      `(you cannot see ,(a/an item) ,item from here.)))
+
+(defun drop (item)
+  "Lets the player drop an item at their current location"
+  (if (member item (inventory))
+      (progn (push (cons item *player-location*) *item-locations*)
+	     `(you drop the ,item on the floor.))
+      `(you dont have that.)))
