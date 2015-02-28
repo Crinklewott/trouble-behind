@@ -74,7 +74,7 @@ otherwise."
 ;; Game description functions
 (defun describe-path (edge)
   "Describes a path connecting two nodes."
-  (let ((place (cadr edge))
+  (let ((place (caddr edge))
 	(direction (car edge)))
     (list 'there 'is (a/an place) place 'to 'the direction 'of 'here.)))
 
@@ -112,3 +112,12 @@ otherwise."
    (car (get-node *player-location*))
    (describe-edges (get-edges *player-location*))
    (describe-items-at-location (get-all-item-details) *player-location*)))
+
+
+(defun walk (direction)
+  "Makes the player walk a specific direction if possible."
+  (let ((edge (assoc direction (get-edges *player-location*))))
+    (if edge
+	(progn (setf *player-location* (cadr edge))
+	       (look))
+	`(i cannot see anywhere ,direction of here.))))
