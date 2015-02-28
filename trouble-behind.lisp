@@ -1,12 +1,13 @@
 ;; State
-(defparameter *player-location* 'your-bedroom
-  "The current location of the player")
-
 (defparameter *map*
   (with-open-file (nodes "map.lmap" :direction :input)
     (read nodes))
   "The map that contains all of the location nodes as well as the
   edges that connect them.")
+
+(defparameter *player-location*
+  (cdr (assoc 'player-location *map*))
+  "The current location of the player")
 
 (defparameter *item-locations* 
   (mapcar (lambda (x) (cons (car x) (caadr x)))
