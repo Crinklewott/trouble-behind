@@ -143,3 +143,38 @@ otherwise."
       (progn (push (cons item *player-location*) *item-locations*)
 	     `(you drop the ,item on the floor.))
       `(you dont have that.)))
+
+;; Advaced metaprogramming thingies
+(defmacro when-player (&rest arg-list)
+  "Checks if the player meets certain conditions in plain english. For example:
+(when-player has blanket)
+...is valid, and will check if the player has a blanket in their
+inventory...
+
+You can chain together statements with \"and\" as well, so the
+following works too:
+(when-player has blanket and is in your-bedroom)
+
+Any words the macro doesn't understand are simply ignored.
+
+Valid words are:
+- in, at <place>
+- has, holds <item>
+- see, sees <thing>
+"
+  (labels ((parse (args acc)
+	     (let ((current (car args)))
+	       (when current
+		 (cond ((member current '(in at))
+			(cons acc (cons `(eq ',(cadr args) *player-location*)
+					(parse (cddr args) acc))))
+		       ((member current '(has holds))
+			(cons acc (cons `(member ',(cadr args) (inventory))
+					(parse (cddr args) acc))))
+		       ((member current '(see sees))
+			(cons acc (cons `(can-see ',(cadr args) *player-location*)
+					(parse (cddr args) acc))))
+		       ((eq current 'and)
+			(cdr (parse (cdr args) '())))
+		       (t (parse (cdr args) '())))))))
+  (parse arg-list 'and)))
