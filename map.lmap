@@ -4,10 +4,10 @@
    (living-room (you are in a spacious living room.))))
  
  (edges
-  ((your-bedroom (hallway west door))
-   (hallway (your-bedroom east door)
-	    (living-room south exit))
-   (living-room (hallway north exit))))
+  ((your-bedroom (west hallway door))
+   (hallway (east your-bedroom door)
+	    (south living-room exit))
+   (living-room (north hallway exit))))
 
  (items ((blanket (a cozy blanket. also happens to be quite long.))
 	 (vase (a priceless vase. bad things would happen if this broke.))

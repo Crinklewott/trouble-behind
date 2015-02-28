@@ -74,8 +74,8 @@ otherwise."
 ;; Game description functions
 (defun describe-path (edge)
   "Describes a path connecting two nodes."
-  (let ((place (caddr edge))
-	(direction (cadr edge)))
+  (let ((place (cadr edge))
+	(direction (car edge)))
     (list 'there 'is (a/an place) place 'to 'the direction 'of 'here.)))
 
 (defun describe-edges (edges)
