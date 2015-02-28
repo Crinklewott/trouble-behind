@@ -1,4 +1,5 @@
 ((player-location . your-bedroom)
+
  (nodes
   ((your-bedroom (you are in your bedroom. a clock ticks on the wall.))
    (hallway (you are in a long hallway.))
