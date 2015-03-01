@@ -31,6 +31,7 @@ individual item"
 (defmap edges get-all-edges get-edges)
 (defmap items get-items get-item)
 (defmap item-location-details get-all-item-details get-item-details)
+(defmap events get-event-list get-event)
 
 ;; Grammar and string output functions
 (let ((vowels '(#\a #\e #\i #\o #\u #\y)))
@@ -177,7 +178,7 @@ performs the respective game commands passed in."
 		   (append '(north east south west)
 			   (mapcar #'car (get-edges *player-location*))))
 	   (walk command))
-	  (t '(huh?)))))
+	  (t (special-command input)))))
 
 (defun tb-loop ()
   "Loops through user input passing it to tb-eval and stylyzing the
@@ -223,3 +224,13 @@ Valid words are:
 			(cdr (parse (cdr args) '())))
 		       (t (parse (cdr args) '())))))))
   (parse arg-list 'and)))
+
+(defun special-command (input)
+  "Runs a command configured in the map"
+  (let ((event (get-event (car input)))
+        (args (cdr input)))
+    (let ((form (assoc args event :test #'equal)))
+      (if (eval (cadr form))
+          (progn (eval (cadddr form))
+                 (caddr form))
+          '(huh?)))))

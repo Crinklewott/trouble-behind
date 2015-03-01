@@ -4,7 +4,7 @@
   ((your-bedroom (you are in your bedroom. a clock ticks on the wall.))
    (hallway (you are in a long hallway.))
    (living-room (you are in a spacious living room.))))
- 
+
  (edges
   ((your-bedroom (west hallway door))
    (hallway (east your-bedroom door)
@@ -15,8 +15,14 @@
 	 (vase (a priceless vase. bad things would happen if this broke.))
 	 (baseball (you are not really that good at throwing... but
 			this still looks like it can do some damage.))))
- 
+
  (item-location-details
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
    (vase (living-room (an expensive vase sits on the coffee table.)))
-   (baseball (your-bedroom (there is a baseball sitting on your desk.))))))
+   (baseball (your-bedroom (there is a baseball sitting on your desk.)))))
+
+ (events ((throw ((baseball clock)
+                  (when-player has baseball and is in your-bedroom)
+                  (uh-oh! the clock shatters!)
+                  (setf (car (get-node 'your-bedroom))
+                        '(you are in your bedroom. a broken clock sits sadly on the wall.)))))))
