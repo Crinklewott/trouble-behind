@@ -210,7 +210,8 @@ Any words the macro doesn't understand are simply ignored.
 Valid words are:
 - in, at <place>
 - has, holds <item>
-- see, sees <thing>"
+- see, sees <thing>
+- already <special command>"
   (labels ((parse (args acc)
 	     (let ((current (car args)))
 	       (when current
@@ -220,13 +221,16 @@ Valid words are:
 		       ((member current '(has holds))
 			(cons acc (cons `(member ',(cadr args) (inventory))
 					(parse (cddr args) acc))))
+		       ((member current '(already))
+			(cons acc (cons `(special-command-run-p ',(cadr args))
+					(parse (cddr args) acc))))
 		       ((member current '(see sees))
 			(cons acc (cons `(can-see ',(cadr args) *player-location*)
 					(parse (cddr args) acc))))
 		       ((eq current 'and)
 			(cdr (parse (cdr args) '())))
 		       (t (parse (cdr args) '())))))))
-  (parse arg-list 'and)))
+    (parse arg-list 'and)))
 
 (defun special-command (input)
   "Runs a command configured in the map"
