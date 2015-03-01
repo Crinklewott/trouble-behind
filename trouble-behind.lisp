@@ -250,4 +250,4 @@ Valid words are:
 
 (defun special-command-run-p (command)
   "Checks if a special command has run successfully."
-  (find command *events-complete* :test #'equal))
+  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
