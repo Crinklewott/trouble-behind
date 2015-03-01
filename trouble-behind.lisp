@@ -151,7 +151,7 @@ performs the respective game commands passed in."
   (let* ((input (car input))
 	 (command (car input)))
     (cond ((member command '(inventory i items))
-	   (inventory))
+	   (or (inventory) '(nothing)))
 	  ((member command '(look inspect describe l))
 	   (if (cdr input)
 	       (look-at (cadr input))
