@@ -37,6 +37,11 @@ individual item"
 (defmap events get-event-list get-event)
 
 ;; Grammar and string output functions
+(defun fluff-word-p (word)
+  "Returns if the passed in word is a fluff word and should be
+ignored."
+  (member word '(the at towards my a)))
+
 (let ((vowels '(#\a #\e #\i #\o #\u #\y)))
   (defun begins-with-vowel (thing)
     "Returns the vowel a word begins with, if it begins with it. nil
@@ -191,7 +196,7 @@ output."
      when (eq (car input) 'quit)
      return t
      do (progn
-	  (princ (stylize-list (tb-eval input)))
+	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
 	  (fresh-line))))
 
 ;; Advaced metaprogramming thingies
