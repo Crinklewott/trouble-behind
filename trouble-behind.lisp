@@ -235,7 +235,7 @@ Valid words are:
 		       ((eq current 'and)
 			(cdr (parse (cdr args) '())))
 		       (t (parse (cdr args) '())))))))
-    (parse arg-list 'and)))
+    (parse (remove-if #'fluff-word-p arg-list) 'and)))
 
 (defun special-command (input)
   "Runs a command configured in the map"
