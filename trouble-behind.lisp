@@ -238,3 +238,7 @@ Valid words are:
                  (push input *events-complete*)
                  (caddr form))
           '(you cannot do that.)))))
+
+(defun special-command-run-p (command)
+  "Checks if a special command has run successfully."
+  (find command *events-complete* :test #'equal))
