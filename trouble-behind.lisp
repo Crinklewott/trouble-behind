@@ -14,6 +14,9 @@
 	  (cadr (assoc 'item-location-details *map*)))
   "An alist containing the locations of items")
 
+(defparameter *events-complete* '()
+  "A list of events that have been successfully completed.")
+
 ;; Dynamically loads things from the map
 (defmacro defmap (entry getter-name fetcher-name)
   "Defines a get-all-<things> function to fetch the alist for some
@@ -232,5 +235,6 @@ Valid words are:
     (let ((form (assoc args event :test #'equal)))
       (if (eval (cadr form))
           (progn (eval (cadddr form))
+                 (push input *events-complete*)
                  (caddr form))
-          '(huh?)))))
+          '(you cannot do that.)))))
