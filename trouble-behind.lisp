@@ -49,7 +49,7 @@ individual item"
 (defun fluff-word-p (word)
   "Returns if the passed in word is a fluff word and should be
 ignored."
-  (member word '(the at to my a can)))
+  (member word '(the at to my a can is)))
 
 (let ((vowels '(#\a #\e #\i #\o #\u #\y)))
   (defun begins-with-vowel (thing)
