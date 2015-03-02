@@ -250,6 +250,8 @@ Valid words are:
           (if (not (special-command-run-p input))
               (if (eval (cadr form))
                   (progn (setf (car (get-node *player-location*)) (cadddr form))
+                         (when (fifth form)
+                           (eval (fifth form)))
                          (push input *events-complete*)
                          (caddr form))
                   '(you cannot do that.))
