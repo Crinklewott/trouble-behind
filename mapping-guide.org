@@ -98,11 +98,11 @@ game.
 For example:
 #+BEGIN_SRC lisp
   (throw
-      ((baseball clock)
+      ((baseball clock) 100
        (when-player can see baseball and is in your-bedroom)
        (uh-oh! the clock shatters! you retreive the baseball.)
        (you are in your bedroom. a broken clock sits sadly on the wall.))
-    ((baseball window)
+    ((baseball window) 500
      (when-player can see baseball and is in the hallway)
      (the window shatters into a waterfall of shards! oh
           jeez... you are going to be in trouble for this one
@@ -111,7 +111,6 @@ For example:
      (you are in a long hallway. a brisk wind gusts in from
           the shattered window.)
      (item-is-now-at 'baseball 'yard)))
-
 #+END_SRC
 This is all of the events in which a player can =throw= something...
 
@@ -120,7 +119,7 @@ situations are a list of two items that shows the item and the thing the
 player tries to perform the action on... This does not need to be an item
 declared anywhere, so:
 #+BEGIN_SRC lisp
-  ((baseball clock)
+  ((baseball clock) 100
    (when-player can see baseball and is in your-bedroom)
    (uh-oh! the clock shatters! you retreive the baseball.)
    (you are in your bedroom. a broken clock sits sadly on the wall.))
@@ -130,10 +129,20 @@ This defines what happens when player throws the baseball at the
 clock.
 
 ** Second form
-The second form (=(when-player can see baseball and is in your-bedroom)=)
-is the conditions under which this event will occur... This can be any
-ol' Lisp expression, but if that isn't your thing, you can use the
-magical =when-player= macro I have prepared to make this easy.
+The second form is a number, this number refers to how much trouble
+you would get in if you were caught doing this... It *also*
+coincidentally, is the score you get for doing this action.
+
+#+BEGIN_SRC lisp
+  100
+#+END_SRC
+
+** Third form
+The third form (=(when-player can see baseball and is in
+your-bedroom)=) is the conditions under which this event will
+occur... This can be any ol' Lisp expression, but if that isn't your
+thing, you can use the magical =when-player= macro I have prepared to
+make this easy.
 
 In this case, this will perform the action when the player can see the
 =baseball= (So is either in the same room as it, or has it in their
@@ -186,8 +195,8 @@ you can make this reasonably plain english in a way... For example:
 ...would mean the exact same thing as above, if that is easier
 for you to understand.
 
-** Third form
-The third form shows the message that the player will see when they
+** Fourth form
+The fourth form shows the message that the player will see when they
 sucessfully perform this action (Meaning the conditions in the second
 pass), so:
 #+BEGIN_SRC lisp
@@ -197,10 +206,10 @@ pass), so:
 This is displayed when the player throws the baseball at the clock
 when the above conditions are met...
 
-** Fourth form
-The fourth form shows what the room the player is currently standing
-in will look like after performing the action, so, when the player
-throws the baseball at the clock, this is the fourth form for that:
+** Fifth form
+The Fifth form shows what the room the player is currently standing in
+will look like after performing the action, so, when the player throws
+the baseball at the clock, this is the fifth form for that:
 #+BEGIN_SRC lisp
   (you are in your bedroom. a broken clock sits sadly on the wall.))
 #+END_SRC
@@ -209,8 +218,8 @@ From that point on, whenever you enter this room or =look= while
 inside, this is the message you will see after performing the action.
 (It overrides the node description.)
 
-** Fifth form
-The fifth and final form is optional... But if you specify it, it is
+** Sixth form
+The Sixth and final form is optional... But if you specify it, it is
 any code you wish to execute after the event has been triggered
 successfully.
 
