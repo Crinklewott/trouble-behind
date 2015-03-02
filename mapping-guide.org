@@ -1,0 +1,185 @@
+#+TITLE:Trouble Behind mapping guide
+#+AUTHOR:thingywhat
+
+Trouble Behind has a pretty extensive map system composed entirely of
+[[http://en.wikipedia.org/wiki/S-expression][S-Expressions]] (Just a bunch of nested lists).
+
+Each section of the map has a particular meaning and will be
+automagically used in the game.
+
+
+* player-location
+This is a dotted list to indicate where the player should start the
+game...
+
+The default is:
+#+BEGIN_SRC lisp
+  (player-location . your-bedroom)
+#+END_SRC
+
+This means that the player will start in the node marked as
+"=your-bedroom=".
+
+* nodes
+This alist contains descriptions for the locations in the map...
+
+For example:
+#+BEGIN_SRC lisp
+  (your-bedroom (you are in your bedroom. a clock ticks on the wall.))
+#+END_SRC
+
+This means that =your-bedroom= will be described as mentioned in the
+list.
+
+* edges
+=edges= contains an alist of lists that tells what each room is
+connected to, how it is connected, and what direction is it...
+
+For example:
+#+BEGIN_SRC lisp
+  (hallway (east your-bedroom door)
+           (south living-room exit))
+#+END_SRC
+This means that the =hallway= is connected to =your-bedroom= by a
+=door= to the =east=, and to the =living-room= to the =south= by an
+exit.
+
+* items
+The =items= alist contains a list of items you can grab in the game,
+along with their descriptions.
+
+For example:
+#+BEGIN_SRC lisp
+  (baseball (you are not really that good at throwing... but this still
+                 looks like it can do some damage.)
+#+END_SRC
+
+This defines a =baseball= with the description in brackets.
+
+* item-location-detauls
+This alist contains the default locations you'll find items you can
+take, along what they look like when undisturbed by the player.
+
+For example:
+#+BEGIN_SRC lisp
+  (blanket (your-bedroom (there is a cozy blanket on your bed.)))
+#+END_SRC
+
+This shows that the =blanket= is in =your-bedroom= and is described by
+the last set of parenthesis.
+
+As soon as the item is picked up, you will never see this description
+again, even if you drop the item in the same room it started in.
+
+* events
+This is the place you can define the actions a player can take and
+when they can take them...
+
+This is another alist, but this one contains more alists.
+
+The first part is the name of the command the player would use in the
+game.
+
+For example:
+#+BEGIN_SRC lisp
+  (throw
+      ((baseball clock)
+       (when-player can see baseball and is in your-bedroom)
+       (uh-oh! the clock shatters! you retreive the baseball.)
+       (you are in your bedroom. a broken clock sits sadly on the wall.))
+    ((baseball window)
+     (when-player can see baseball and is in the hallway)
+     (the window shatters into a waterfall of shards! oh
+          jeez... you are going to be in trouble for this one
+          for sure!  the ball lands in the tall grass of the
+          yard outside.)
+     (you are in a long hallway. a brisk wind gusts in from
+          the shattered window.)
+     (item-is-now-at 'baseball 'yard)))
+
+#+END_SRC
+This is all of the events in which a player can throw something...
+
+For each event, there is a list that shows the item and the location,
+so:
+#+BEGIN_SRC lisp
+  ((baseball clock)
+   (when-player can see baseball and is in your-bedroom)
+   (uh-oh! the clock shatters! you retreive the baseball.)
+   (you are in your bedroom. a broken clock sits sadly on the wall.))
+#+END_SRC
+
+This defines what happens when player throws the baseball at the
+clock.
+
+The second form is the conditions under which this event will
+occur... This can be any ol' Lisp expression, but if that isn't your
+thing, you can use the magical =when-player= macro I have prepared to
+make this easy.
+
+The macro accepts almost-plain English to describe if a player meets
+the requirements or not.
+
+The way it is documented in the source file is as follows:
+#+BEGIN_EXAMPLE
+  Checks if the player meets certain conditions in plain english. For example:
+  (when-player has blanket)
+  ...is valid, and will check if the player has a blanket in their
+  inventory...
+
+  You can chain together statements with \"and\" as well, so the
+  following works too:
+  (when-player has blanket and is in your-bedroom)
+
+  Any words the macro doesn't understand are simply ignored.
+
+  Valid words are:
+  - in, at <place>
+  - has, holds <item>
+  - see, sees <thing>
+  - already <special command>
+#+END_EXAMPLE
+
+It can also check if a player already ran another event in the past
+with "=already="...
+
+For example:
+#+BEGIN_SRC lisp
+  (when-player has the baseball and is in the hallway and already (throw baseball at the clock))
+#+END_SRC
+
+This checks if the player currently has the baseball, is in the
+hallway, and has already thrown the baseball at the clock (In
+=your-room=).
+
+The third form shows the message that the player will see when they
+perform this action, so:
+#+BEGIN_SRC lisp
+  (uh-oh! the clock shatters! you retreive the baseball.)
+#+END_SRC
+
+This is displayed when the player throws the baseball at the clock
+when the above conditions are met...
+
+The fourth form shows what the room the player is currently standing in
+will look like after performing the action, so:
+#+BEGIN_SRC lisp
+  (you are in your bedroom. a broken clock sits sadly on the wall.))
+#+END_SRC
+
+Whenever you enter this room or =look= while inside, this is the
+message you will see after performing the action.
+
+The fifth and final form is optional... But if you specify it, it is
+any code you wish to execute after the event has been triggered
+successfully.
+
+There is currently only one convenience function for this, so you
+would need to know Lisp to do anything beyond this but:
+#+BEGIN_SRC lisp
+  (item-is-now-at 'baseball 'yard)
+#+END_SRC
+
+If this is the last form, it will move the baseball from wherever it
+is and put it in the =yard= node. (Note the single quotes before the
+symbols.)
