@@ -266,3 +266,10 @@ Valid words are:
 (defun item-is-now-at (item place)
   "Moves an item to some place."
   (push (cons item place) *item-locations*))
+
+(defun connect-places (place1 place2 item)
+  "Connects two places with an item."
+  (let ((pushable-place1 (cdr (assoc place1 (get-all-edges))))
+        (pushable-place2 (cdr (assoc place2 (get-all-edges)))))
+    (push (list item place2 item) pushable-place1)
+    (push (list item place1 item) pushable-place2)))
