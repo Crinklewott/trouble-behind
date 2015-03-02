@@ -261,3 +261,8 @@ Valid words are:
 (defun special-command-run-p (command)
   "Checks if a special command has run successfully."
   (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
+
+;; Map utility functions
+(defun item-is-now-at (item place)
+  "Moves an item to some place."
+  (push (cons item place) *item-locations*))
