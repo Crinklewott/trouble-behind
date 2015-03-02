@@ -246,11 +246,15 @@ Valid words are:
   (let ((event (get-event (car input)))
         (args (cdr input)))
     (let ((form (assoc args event :test #'equal)))
-      (if (eval (cadr form))
-          (progn (setf (car (get-node *player-location*)) (cadddr form))
-                 (push input *events-complete*)
-                 (caddr form))
-          '(you cannot do that.)))))
+      (if form
+          (if (not (special-command-run-p input))
+              (if (eval (cadr form))
+                  (progn (setf (car (get-node *player-location*)) (cadddr form))
+                         (push input *events-complete*)
+                         (caddr form))
+                  '(you cannot do that.))
+              '(you already did that.))
+          '(huh?)))))
 
 (defun special-command-run-p (command)
   "Checks if a special command has run successfully."
