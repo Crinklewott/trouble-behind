@@ -243,7 +243,7 @@ Valid words are:
         (args (cdr input)))
     (let ((form (assoc args event :test #'equal)))
       (if (eval (cadr form))
-          (progn (eval (cadddr form))
+          (progn (setf (car (get-node *player-location*)) (cadddr form))
                  (push input *events-complete*)
                  (caddr form))
           '(you cannot do that.)))))

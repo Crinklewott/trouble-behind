@@ -24,5 +24,4 @@
  (events ((throw ((baseball clock)
                   (when-player has baseball and is in your-bedroom)
                   (uh-oh! the clock shatters!)
-                  (setf (car (get-node 'your-bedroom))
-                        '(you are in your bedroom. a broken clock sits sadly on the wall.)))))))
+                  (you are in your bedroom. a broken clock sits sadly on the wall.))))))
