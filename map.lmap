@@ -2,9 +2,12 @@
 
  (nodes
   ((your-bedroom (you are in your bedroom. a clock ticks on the wall.))
-   (hallway (you are in a long hallway.))
-   (living-room (you are in a spacious living room.))))
-
+   (hallway (you are in a long hallway. there is a window halfway on
+                 the right side.))
+   (living-room (you are in a spacious living room.))
+   (yard (you are in a medium-sized yard. it looks like the grass has
+              not been cut for ages.))))
+ 
  (edges
   ((your-bedroom (west hallway door))
    (hallway (east your-bedroom door)
@@ -21,7 +24,26 @@
    (vase (living-room (an expensive vase sits on the coffee table.)))
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))))
 
- (events ((throw ((baseball clock)
-                  (when-player has baseball and is in your-bedroom)
-                  (uh-oh! the clock shatters!)
-                  (you are in your bedroom. a broken clock sits sadly on the wall.))))))
+ (events ((throw
+              ((baseball clock)
+               (when-player can see baseball and is in your-bedroom)
+               (uh-oh! the clock shatters! you retreive the baseball.)
+               (you are in your bedroom. a broken clock sits sadly on the wall.))
+            ((baseball window)
+             (when-player can see baseball and is in the hallway)
+             (the window shatters into a waterfall of shards! oh
+                  jeez... you are going to be in trouble for this one
+                  for sure!  the ball lands in the tall grass of the
+                  yard outside.)
+             (you are in a long hallway. a brisk wind gusts in from
+                  the shattered window.)
+             (item-is-now-at 'baseball 'yard)))
+          (put
+           ((blanket window)
+            (when-player is in the hallway and has the blanket and
+                         already (throw baseball window))
+            (you let the blanket droop out the window. it looks like
+                 you can climb down.)
+            (you are in a long hallway. a blanket hanging from the
+                 broken window sways gently in the wind.)
+            (connect-places 'hallway 'west 'yard 'east 'blanket))))))
