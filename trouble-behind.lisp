@@ -25,8 +25,17 @@ individual item"
   `(let ((,entry (cadr (assoc ',entry *map*))))
      (defun ,fetcher-name (key)
        (cdr (assoc key ,entry)))
+     (defun (setf ,fetcher-name) (new-value key)
+       (setf ,entry
+             (mapcar (lambda (item)
+                       (if (eq key (car item))
+                           (cons (car item) new-value)
+                           item))
+                     (get-all-edges))))
      (defun ,getter-name ()
-       ,entry)))
+       ,entry)
+     (defun (setf ,getter-name) (new-value)
+       (setf ,entry new-value))))
 
 ;; Load each type of map item we care about and creates a whole mess
 ;; of utility functions
@@ -267,9 +276,7 @@ Valid words are:
   "Moves an item to some place."
   (push (cons item place) *item-locations*))
 
-(defun connect-places (place1 place2 item)
+(defun connect-places (place1 direction1 place2 direction2 item)
   "Connects two places with an item."
-  (let ((pushable-place1 (cdr (assoc place1 (get-all-edges))))
-        (pushable-place2 (cdr (assoc place2 (get-all-edges)))))
-    (push (list item place2 item) pushable-place1)
-    (push (list item place1 item) pushable-place2)))
+    (push (list direction1 place2 item) (get-edges place1))
+    (push (list direction2 place1 item) (get-edges place2)))
