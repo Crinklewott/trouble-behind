@@ -12,7 +12,8 @@
   ((your-bedroom (west hallway door))
    (hallway (east your-bedroom door)
 	    (south living-room exit))
-   (living-room (north hallway exit))))
+   (living-room (north hallway exit))
+   (yard)))
 
  (items ((blanket (a cozy blanket. also happens to be quite long.))
 	 (vase (a priceless vase. bad things would happen if this broke.))
