@@ -31,7 +31,7 @@ individual item"
                        (if (eq key (car item))
                            (cons (car item) new-value)
                            item))
-                     (get-all-edges))))
+                     ,entry)))
      (defun ,getter-name ()
        ,entry)
      (defun (setf ,getter-name) (new-value)
@@ -162,6 +162,75 @@ otherwise."
 	     `(you drop the ,item on the floor.))
       `(you dont have that.)))
 
+;; Advaced metaprogramming thingies
+(defmacro when-player (&rest arg-list)
+  "Checks if the player meets certain conditions in plain english. For example:
+(when-player has blanket)
+...is valid, and will check if the player has a blanket in their
+inventory...
+
+You can chain together statements with \"and\" as well, so the
+following works too:
+(when-player has blanket and is in your-bedroom)
+
+Any words the macro doesn't understand are simply ignored.
+
+Valid words are:
+- in, at <place>
+- has, holds <item>
+- see, sees <thing>
+- already <special command>"
+  (labels ((parse (args acc)
+	     (let ((current (car args)))
+	       (when current
+		 (case current
+                   ((in at)
+                    (cons acc (cons `(eq ',(cadr args) *player-location*)
+                                    (parse (cddr args) acc))))
+                   ((has holds)
+                    (cons acc (cons `(member ',(cadr args) (inventory))
+                                    (parse (cddr args) acc))))
+                   ((already)
+                    (cons acc (cons `(special-command-run-p ',(cadr args))
+                                    (parse (cddr args) acc))))
+                   ((see sees)
+                    (cons acc (cons `(can-see ',(cadr args) *player-location*)
+                                    (parse (cddr args) acc))))
+                   (and (cdr (parse (cdr args) '())))
+                   (otherwise (parse (cdr args) '())))))))
+    (parse (remove-if #'fluff-word-p arg-list) 'and)))
+
+(defun special-command-run-p (command)
+  "Checks if a special command has run successfully."
+  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
+
+(defun special-command (input)
+  "Runs a command configured in the map"
+  (let ((event (get-event (car input)))
+        (args (cdr input)))
+    (let ((form (assoc args event :test #'equal)))
+      (if form
+          (if (not (special-command-run-p input))
+              (if (eval (third form))
+                  (progn (setf (car (get-node *player-location*)) (fourth form))
+                         (when (sixth form)
+                           (eval (sixth form)))
+                         (push input *events-complete*)
+                         (fifth form))
+                  '(you cannot do that.))
+              '(you already did that.))
+          '(huh?)))))
+
+;; Map utility functions
+(defun item-is-now-at (item place)
+  "Moves an item to some place."
+  (push (cons item place) *item-locations*))
+
+(defun connect-places (place1 direction1 place2 direction2 item)
+  "Connects two places with an item."
+    (push (list direction1 place2 item) (get-edges place1))
+    (push (list direction2 place1 item) (get-edges place2)))
+
 ;; Game REPL functions
 (defun tb-eval (&rest input)
   "Evaluates user input from (read) in a controlled manner and
@@ -211,72 +280,3 @@ output."
      do (progn
 	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
 	  (fresh-line))))
-
-;; Advaced metaprogramming thingies
-(defmacro when-player (&rest arg-list)
-  "Checks if the player meets certain conditions in plain english. For example:
-(when-player has blanket)
-...is valid, and will check if the player has a blanket in their
-inventory...
-
-You can chain together statements with \"and\" as well, so the
-following works too:
-(when-player has blanket and is in your-bedroom)
-
-Any words the macro doesn't understand are simply ignored.
-
-Valid words are:
-- in, at <place>
-- has, holds <item>
-- see, sees <thing>
-- already <special command>"
-  (labels ((parse (args acc)
-	     (let ((current (car args)))
-	       (when current
-		 (case current
-                   ((in at)
-                    (cons acc (cons `(eq ',(cadr args) *player-location*)
-                                    (parse (cddr args) acc))))
-                   ((has holds)
-                    (cons acc (cons `(member ',(cadr args) (inventory))
-                                    (parse (cddr args) acc))))
-                   ((already)
-                    (cons acc (cons `(special-command-run-p ',(cadr args))
-                                    (parse (cddr args) acc))))
-                   ((see sees)
-                    (cons acc (cons `(can-see ',(cadr args) *player-location*)
-                                    (parse (cddr args) acc))))
-                   (and (cdr (parse (cdr args) '())))
-                   (otherwise (parse (cdr args) '())))))))
-    (parse (remove-if #'fluff-word-p arg-list) 'and)))
-
-(defun special-command (input)
-  "Runs a command configured in the map"
-  (let ((event (get-event (car input)))
-        (args (cdr input)))
-    (let ((form (assoc args event :test #'equal)))
-      (if form
-          (if (not (special-command-run-p input))
-              (if (eval (cadr form))
-                  (progn (setf (car (get-node *player-location*)) (cadddr form))
-                         (when (fifth form)
-                           (eval (fifth form)))
-                         (push input *events-complete*)
-                         (caddr form))
-                  '(you cannot do that.))
-              '(you already did that.))
-          '(huh?)))))
-
-(defun special-command-run-p (command)
-  "Checks if a special command has run successfully."
-  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
-
-;; Map utility functions
-(defun item-is-now-at (item place)
-  "Moves an item to some place."
-  (push (cons item place) *item-locations*))
-
-(defun connect-places (place1 direction1 place2 direction2 item)
-  "Connects two places with an item."
-    (push (list direction1 place2 item) (get-edges place1))
-    (push (list direction2 place1 item) (get-edges place2)))
