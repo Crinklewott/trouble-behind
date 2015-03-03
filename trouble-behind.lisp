@@ -6,7 +6,7 @@
   edges that connect them.")
 
 (defparameter *player-location*
-  (cdr (assoc 'player-location *map*))
+  (cadr (assoc 'player-location *map*))
   "The current location of the player")
 
 (defparameter *item-locations* 
