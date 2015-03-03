@@ -68,16 +68,19 @@ otherwise."
 (defun stylize-string (str)
   "Stylizes a string so it prints with correct capitalization and
 formatting from a string."
-  (labels ((style (char-list caps)
+  (labels ((style (char-list caps ver)
 	     (when char-list
 	       (let ((first (car char-list))
 		     (rest (cdr char-list)))
 		 (cond
-		   ((char= first #\space) (cons #\space (style rest caps)))
-		   ((char= first #\.) (cons #\. (style rest t)))
-		   (caps (cons (char-upcase first) (style rest nil)))
-		   (t (cons (char-downcase first) (style rest nil))))))))
-    (coerce (style (coerce (string-trim "()" str) 'list) t) 'string)))
+                   (ver (if (char= first #\")
+                          (style rest caps nil)
+                          (cons first (style rest caps t))))
+                   ((char= first #\") (style rest t t))
+		   ((char= first #\.) (cons #\. (style rest t ver)))
+		   (caps (cons (char-upcase first) (style rest nil ver)))
+		   (t (cons (char-downcase first) (style rest nil ver))))))))
+    (coerce (style (coerce (string-trim "()" str) 'list) t nil) 'string)))
 
 (defun stylize-list (list)
   "Stylizes a list as a pretty string."
