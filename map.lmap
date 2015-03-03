@@ -22,17 +22,16 @@
   ((blanket (a cozy blanket. it also happens to be quite long.))
    (baseball (you are not really that good at throwing... but this
                   still looks like it can do some damage.))
-   (ceramic-shard (this large shard still looks beautiful in a
-                        "way," but is no comparison to what it once
-                        was. it also look like it could cause some
-                        pretty serious cuts.))))
+   (shard (this large shard still looks beautiful in a "way," but is
+                no comparison to what it once was. it also look like
+                it could cause some pretty serious cuts.))))
 
  (item-location-details
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))
-   (ceramic-shard (ether (a large ceramic shard rests here.)))))
+   (shard (ether (a large ceramic shard rests here.)))))
 
- (world-descriptions
+ (world-items
   ((living-room (vase (a priceless "Ming" vase sits tucked away on a
                          ridiculously large shelf out of reach. very
                          bad things would happen if this broke.))
@@ -46,7 +45,6 @@
       (uh-oh! the clock shatters!)
       (you are in your bedroom. a broken clock sits sadly on the wall.)
       (item-is-now-at 'baseball 'your-bedroom))
-
      
      ((baseball window) 50
       (when-player can see baseball and is in the hallway)
@@ -56,16 +54,17 @@
       (you are in a long hallway. a brisk wind gusts in from the
            shattered window.)
       (item-is-now-at 'baseball 'yard))
-
      
      ((baseball vase) 150
-      (when-player can see baseball and is in living-room)
+      (when-player can see baseball and can see vase)
       (the vase shatters! that vase was priceless. there is no way you
            are getting away with that one! one of the larger shards
            falls to the floor.)
       ()
       (progn
-        (item-is-now-at 'ceramic-shard *player-location*))))
+        (destroy-world-item *player-location* 'vase)
+        (item-is-now-at 'shard *player-location*)
+        (item-is-now-at 'baseball *player-location*))))
 
    (put
     ((blanket window) 0     
