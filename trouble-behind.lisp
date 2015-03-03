@@ -14,6 +14,10 @@
 	  (cadr (assoc 'item-location-details *map*)))
   "An alist containing the locations of items")
 
+(defparameter *trouble-points* 0
+  "The score the player has... Also additively measures how much
+trouble the player can be in.")
+
 (defparameter *events-complete* '()
   "A list of events that have been successfully completed.")
 
@@ -212,11 +216,12 @@ Valid words are:
       (if form
           (if (not (special-command-run-p input))
               (if (eval (third form))
-                  (progn (setf (car (get-node *player-location*)) (fourth form))
+                  (progn (setf (car (get-node *player-location*)) (fifth form))
+			 (incf *trouble-points* (second form))
                          (when (sixth form)
                            (eval (sixth form)))
                          (push input *events-complete*)
-                         (fifth form))
+                         (fourth form))
                   '(you cannot do that.))
               '(you already did that.))
           '(huh?)))))
