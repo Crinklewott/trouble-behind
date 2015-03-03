@@ -47,7 +47,7 @@ individual item"
 (defmap edges get-all-edges get-edges)
 (defmap items get-items get-item)
 (defmap item-location-details get-all-item-details get-item-details)
-(defmap world-descriptions get-all-description-lists get-description-list)
+(defmap world-items get-all-world-item-lists get-world-item-list)
 (defmap events get-event-list get-event)
 
 ;; Grammar and string output functions
@@ -70,16 +70,17 @@ otherwise."
 formatting from a string."
   (labels ((style (char-list caps ver)
 	     (when char-list
-	       (let ((first (car char-list))
+	       (let ((f (car char-list))
 		     (rest (cdr char-list)))
 		 (cond
-                   (ver (if (char= first #\")
+                   (ver (if (char= f #\")
                           (style rest caps nil)
-                          (cons first (style rest caps t))))
-                   ((char= first #\") (style rest t t))
-		   ((char= first #\.) (cons #\. (style rest t ver)))
-		   (caps (cons (char-upcase first) (style rest nil ver)))
-		   (t (cons (char-downcase first) (style rest nil ver))))))))
+                          (cons f (style rest caps t))))
+                   ((char= f #\Space) (cons f (style rest caps ver)))
+                   ((char= f #\") (style rest t t))
+		   ((member f '(#\. #\? #\!)) (cons f (style rest t ver)))
+		   (caps (cons (char-upcase f) (style rest nil ver)))
+		   (t (cons (char-downcase f) (style rest nil ver))))))))
     (coerce (style (coerce (string-trim "()" str) 'list) t nil) 'string)))
 
 (defun stylize-list (list)
@@ -125,7 +126,7 @@ otherwise."
   (let ((loc (item-location item)))
     (or (eq location loc)
 	(eq 'inventory loc)
-        (assoc item (get-description-list location)))))
+        (assoc item (get-world-item-list location)))))
 
 ;; Player location-oriented functions
 (defun look ()
@@ -138,7 +139,8 @@ otherwise."
 (defun look-at (item)
   "Gets the player to look at an item if they can see it."
   (if (can-see item *player-location*)
-      (car (get-item item))
+      (or (car (get-item item))
+          (cadr (assoc 'vase (get-world-item-list *player-location*))))
       `(you cannot see any ,item around here.)))
 
 (defun walk (direction)
@@ -148,6 +150,12 @@ otherwise."
 	(progn (setf *player-location* (cadr edge))
 	       (look))
 	`(i cannot see anywhere ,direction of here.))))
+
+(defun destroy-world-item (location item)
+  "Destroys a world item so you can't see it any more."
+  (setf (get-world-item-list location)
+        (remove-if (lambda (i) (eq item (car i)))
+                   (get-world-item-list location))))
 
 (defun inventory ()
   "Returns the player's inventory"
