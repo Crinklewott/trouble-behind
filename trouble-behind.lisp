@@ -47,6 +47,7 @@ individual item"
 (defmap edges get-all-edges get-edges)
 (defmap items get-items get-item)
 (defmap item-location-details get-all-item-details get-item-details)
+(defmap world-descriptions get-all-description-lists get-description-list)
 (defmap events get-event-list get-event)
 
 ;; Grammar and string output functions
@@ -216,12 +217,14 @@ Valid words are:
       (if form
           (if (not (special-command-run-p input))
               (if (eval (third form))
-                  (progn (setf (car (get-node *player-location*)) (fifth form))
-			 (incf *trouble-points* (second form))
-                         (when (sixth form)
-                           (eval (sixth form)))
-                         (push input *events-complete*)
-                         (fourth form))
+                  (progn
+                    (incf *trouble-points* (second form))
+                    (push input *events-complete*)
+                    (when (fifth form)
+                      (setf (car (get-node *player-location*)) (fifth form)))
+                    (when (sixth form)
+                      (eval (sixth form)))
+                    (fourth form))
                   '(you cannot do that.))
               '(you already did that.))
           '(huh?)))))
