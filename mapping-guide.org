@@ -9,7 +9,7 @@ automagically used in the game.
 
 
 * player-location
-This is a dotted list to indicate where the player should start the
+This is a two-item list to indicate where the player should start the
 game...
 
 The default is:
