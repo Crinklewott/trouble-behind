@@ -121,7 +121,8 @@ otherwise."
   "Checks if you can see an item currently"
   (let ((loc (item-location item)))
     (or (eq location loc)
-	(eq 'inventory loc))))
+	(eq 'inventory loc)
+        (assoc item (get-description-list location)))))
 
 ;; Player location-oriented functions
 (defun look ()

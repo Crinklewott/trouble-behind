@@ -6,7 +6,7 @@
                  the hall on the west side.))
    (living-room (you are in a spacious living room. a humongous shelf
                      sits across the room from a "large,"
-                     luxurious "recliner," a beautiful "Ming" vase
+                     somewhat-worn "recliner," a beautiful "Ming" vase
                      rests on top of the shelf.))
    (yard (you are in a medium-sized yard. it looks like the
               grass "hasn't" been cut for ages.))))
@@ -32,10 +32,12 @@
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))
    (ceramic-shard (ether (a large ceramic shard rests here.)))))
 
- (word-descriptions
-  (living-room ((vase (a priceless "Ming" vase sits tucked away on a
+ (world-descriptions
+  ((living-room (vase (a priceless "Ming" vase sits tucked away on a
                          ridiculously large shelf out of reach. very
-                         bad things would happen if this broke.)))))
+                         bad things would happen if this broke.))
+                (recliner (a "slightly-worn," but visibly comfortable
+                             recliner.)))))
  
  (events
   ((throw
