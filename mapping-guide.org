@@ -4,10 +4,40 @@
 Trouble Behind has a pretty extensive map system composed entirely of
 [[http://en.wikipedia.org/wiki/S-expression][S-Expressions]] (Just a bunch of nested lists).
 
-Each section of the map has a particular meaning and will be
-automagically used in the game.
+* S-Expressions
+An S-Expression in this case is a set of parenthesis inside them...
 
+For example:
+#+BEGIN_SRC lisp
+  (heyas there! how ya doing?)
+#+END_SRC
 
+In Trouble Behind, anything inside of these "forms" will be
+automatically capitalized, and can be any alphanumeric character.
+
+So, the above S-Expressions would be output like:
+#+BEGIN_EXAMPLE
+  Heyas there! How ya doing?
+#+END_EXAMPLE
+
+S-Expressions allow for punctuation such as "!", ".", and "?", but
+quotes, apostrophes and commas have a special meaning in these lists.
+
+So, to display a string verbatim, you can surround it in quotes:
+#+BEGIN_SRC lisp
+  (this is what I "mean," right here...)
+#+END_SRC
+
+Which would output as:
+#+BEGIN_EXAMPLE
+  This is what I mean, right here...
+#+END_EXAMPLE
+
+The [[./map.lmap][entire map]] is composed of these expressions, and each section of
+the map has a particular meaning to the game engine. So, any changes
+you make to the map will be automagically used in the game.
+
+Below is a description of each part of the map:
 * player-location
 This is a two-item list to indicate where the player should start the
 game...
@@ -48,7 +78,7 @@ So, from the hallway, the player can "=walk south=" to get to the
 =living-room= node, or "=walk east=" to go to =your-bedroom=.
 
 * items
-The =items= alist contains a list of items you can grab in the game
+The =items= alist contains a list of items you can see in the game
 along with their descriptions.
 
 For example:
@@ -62,7 +92,21 @@ This defines a =baseball= with the description in brackets.
 This description will be shown when the player uses =look= on it when
 the item is either in their inventory or is in the same room as them.
 
-* item-location-details
+If there is a second list in the definition of an item, you will not
+be able to pick up the item, but rather an excuse will be given.
+
+For example:
+#+BEGIN_SRC lisp
+  (vase (a priceless "Ming" vase sits tucked away on a ridiculously
+           large shelf out of reach. very bad things would happen if
+           this broke.)
+        (it is too high for you to reach.))
+#+END_SRC
+
+This would define a vase item that, when you try to obtain it, would
+tell you that it is too high for you to reach.
+
+* item-details
 This alist contains the default locations you'll find items you can
 take, along what they look like when undisturbed by the player.
 
@@ -98,35 +142,57 @@ game.
 For example:
 #+BEGIN_SRC lisp
   (throw
-      ((baseball clock) 100
-       (when-player can see baseball and is in your-bedroom)
-       (uh-oh! the clock shatters! you retreive the baseball.)
+    ((baseball clock) 10
+     (when-player can see baseball and is in your-bedroom)
+     (uh-oh! the clock shatters!)
+     ((new-location-description
        (you are in your bedroom. a broken clock sits sadly on the wall.))
-    ((baseball window) 500
+      (item-is-now-at 'baseball 'your-bedroom)))
+    
+    ((baseball window) 50
      (when-player can see baseball and is in the hallway)
-     (the window shatters into a waterfall of shards! oh
-          jeez... you are going to be in trouble for this one
-          for sure!  the ball lands in the tall grass of the
-          yard outside.)
-     (you are in a long hallway. a brisk wind gusts in from
-          the shattered window.)
-     (item-is-now-at 'baseball 'yard)))
+     (the window shatters into a waterfall of shards! oh man... you
+          are going to be in trouble for this one for sure! the ball
+          descends into the tall grass of the yard below.)
+     ((new-location-description
+       (you are in a long hallway. a brisk wind gusts in from the
+            shattered window.))
+      (item-is-now-at 'baseball 'yard)))
+    
+    ((baseball vase) 150
+     (when-player can see baseball and can see vase)
+     (the vase shatters! that vase was priceless. there is no way you
+          are getting away with that one! one of the larger shards
+          falls to the floor.)
+     ((item-is-now-at 'vase 'ether)
+      (item-is-now-at 'shard *player-location*)
+      (item-is-now-at 'baseball *player-location*))))
 #+END_SRC
-This is all of the events in which a player can =throw= something...
+This giant form probably looks really intimidating... But it really
+isn't when you break it down.
 
-For each event, there is a list of situations they can use it... These
-situations are a list of two items that shows the item and the thing the
-player tries to perform the action on... This does not need to be an item
-declared anywhere, so:
-#+BEGIN_SRC lisp
-  ((baseball clock) 100
-   (when-player can see baseball and is in your-bedroom)
-   (uh-oh! the clock shatters! you retreive the baseball.)
-   (you are in your bedroom. a broken clock sits sadly on the wall.))
-#+END_SRC
+This is a declaration for three separate times a player can throw
+something...
 
-This defines what happens when player throws the baseball at the
-clock.
+The top bit (The =(throw=) is the name of the command.
+
+And then the remaining forms are alist entries for all of the
+situations where this would be applicable.
+
+There are three in the above example, which are =(baseball clock)=,
+=(baseball window)=, and =(baseball vase)=...
+
+These correlate with when the player tries to type the following
+three things:
+#+BEGIN_EXAMPLE
+  throw the baseball at the clock
+  throw baseball out window
+  throw baseball vase
+#+END_EXAMPLE
+
+The values that follow after those forms are the description of what
+happens when that action occurs, the following describes what each
+form does:
 
 ** Second form
 The second form is a number, this number refers to how much trouble
@@ -138,11 +204,13 @@ coincidentally, is the score you get for doing this action.
 #+END_SRC
 
 ** Third form
-The third form (=(when-player can see baseball and is in
-your-bedroom)=) is the conditions under which this event will
-occur... This can be any ol' Lisp expression, but if that isn't your
-thing, you can use the magical =when-player= macro I have prepared to
-make this easy.
+The third form... Eg:
+#+BEGIN_SRC lisp
+  (when-player can see baseball and is in your-bedroom)
+#+END_SRC
+...are the conditions under which this event will occur... This can be
+any ol' Lisp expression, but if that isn't your thing, you can use the
+magical =when-player= macro I have prepared to make this easy.
 
 In this case, this will perform the action when the player can see the
 =baseball= (So is either in the same room as it, or has it in their
@@ -207,58 +275,128 @@ This is displayed when the player throws the baseball at the clock
 when the above conditions are met...
 
 ** Fifth form
-The Fifth form shows what the room the player is currently standing in
-will look like after performing the action, so, when the player throws
-the baseball at the clock, this is the fifth form for that:
-#+BEGIN_SRC lisp
-  (you are in your bedroom. a broken clock sits sadly on the wall.))
-#+END_SRC
+The fifth and final form is optional... But if you specify it, it is
+any code inside of a list you wish to execute after the event has been
+triggered successfully.
 
-From that point on, whenever you enter this room or =look= while
-inside, this is the message you will see after performing the action.
-(It overrides the node description.)
+There is are a few convenience functions for this, but you would need
+to know Lisp to do anything beyond that...
 
-** Sixth form
-The Sixth and final form is optional... But if you specify it, it is
-any code you wish to execute after the event has been triggered
-successfully.
-
-There is currently only one convenience function for this, so you
-would need to know Lisp to do anything beyond this but:
+The convenience functions are:
+*** item-is-now-at
+This function takes two quoted arguments, and puts an item that
+matches the first to the node that matches the second.
 #+BEGIN_SRC lisp
   (item-is-now-at 'baseball 'yard)
 #+END_SRC
 
-If this is the last form, it will move the baseball from wherever it
-is and put it in the =yard= node. (Note the single quotes before the
-symbols.)
+If no node exists with the name given, it just hides the item. For
+example, in the map, I sometimes move items to the =ether= to pretend
+as if they have been destroyed.
 
-You can see this is the last form for the second =throw baseball=
-action in the example way above, lemme drag it down here:
+Eg:
+#+BEGIN_SRC lisp
+  (item-is-now-at 'vase 'ether)
+#+END_SRC
+This would make the =vase= disappear from the map.
+
+I also define items in the =ether= in the map itself so I can "poof"
+them into existence on certain events, like:
+#+BEGIN_SRC lisp
+  (item-is-now-at 'shard *player-location*)
+#+END_SRC
+
+This would make the =shard= item appear in the same room as the player
+when the event is triggered.
+
+*** new-location-description
+This assigns a location a new description... For example:
+#+BEGIN_SRC lisp
+  (new-location-description
+   '(you are in a long hallway. a brisk wind gusts in from the
+     shattered window.))
+#+END_SRC
+
+This would set the description for the room the player is currently in
+to the description in the list.
+
+This can also be used to change the description of places outside of
+the player's location with an optional second argument... So if the
+player triggered an event in a node called =your-room= and we had this
+in the fifth form:
+#+BEGIN_SRC lisp
+  (new-location-description
+   '(you are in a long hallway. a brisk wind gusts in from the
+     shattered window.)
+   'hallway)
+#+END_SRC
+
+...this would update the hallway node with that description, and not
+the =your-room= node.
+
+*** connect-places
+You can use this function to connect two places on the map, for
+example:
+#+BEGIN_SRC lisp
+  (connect-places 'hallway 'west 'yard 'east 'blanket)
+#+END_SRC
+This would connect the =hallway= node on the =west= side to the =yard=
+node on the =east= side with a =blanket=.
+
+You can use this to form paths that never used to exist between
+certain nodes.
+
+*** Special forms
+There are two special forms you can use in your commands:
+
+**** =*player-location*=
+Putting =*player-location*= on its own will substitute itself for the
+current location the player is standing. Generally, you would use this
+if you want to do something at the current location of the player.
+
+For example:
+#+BEGIN_SRC lisp
+  (item-is-now-at 'shard *player-location*)
+#+END_SRC
+
+This puts the =shard= item in the same node that the player is
+standing in.
+
+**** =inventory=
+This quoted symbol is the place that the player stores things when
+they are holing onto them... For example:
+#+BEGIN_SRC lisp
+  (item-is-now-at 'shard 'inventory)
+#+END_SRC
+
+This would move the =shard= item from wherever it started into the
+player's inventory.
+
+** Putting it all together
+With all of the above, consider the following form:
 
 #+BEGIN_SRC lisp
   (throw
-    ((baseball window) 500
-     (when-player can see baseball and is in the hallway)
-     (the window shatters into a waterfall of shards! oh
-          jeez... you are going to be in trouble for this one
-          for sure!  the ball lands in the tall grass of the
-          yard outside.)
-     (you are in a long hallway. a brisk wind gusts in from
-          the shattered window.)
-     (item-is-now-at 'baseball 'yard)))
+    ((baseball vase) 150
+     (when-player can see baseball and can see vase)
+     (the vase shatters! that vase was priceless. there is no way you
+          are getting away with that one! one of the larger shards falls
+          to the floor.)
+     ((item-is-now-at 'vase 'ether)
+      (item-is-now-at 'shard *player-location*)
+      (item-is-now-at 'baseball *player-location*))))
 #+END_SRC
 
 This entire action means:
-- When the player attempts to =throw= a =baseball= at a =window=
-- If the player is in the same room as the =baseball=, or is
-  holding it, and is in the hallway...
-- The Message "The window shatters into a waterfall of shards! Oh
-  jeez... You are going to be in trouble for this one for sure!
-  The ball lands in the tall grass of the yard outside." displays
-- 500 trouble points will be awarded/afflicted upon the player.
-- Whenever walking in the hallway after this, or using =look=,
-  the player will see the message "You are in a long hallway. A
-  brisk wind gusts in from the shattered window."
-- The =baseball= is moved from wherever it started and is now in
-  the =yard= node.
+- When the player attempts to =throw= a =baseball= at a =vase=
+- If the player is holding onto the =baseball=, or can see it in the
+  same room as them, and they are in the same room as the =vase=...
+- The Message "The vase shatters! That vase was priceless. There is no
+  way you are getting away with that one! One of the larger shards
+  falls to the floor." gets displayed.
+- 150 trouble points will be awarded/afflicted upon the player.
+- The =vase= item stops existing.
+- The =shard= item exists in the room the player is standing in.
+- The =baseball= is put onto the floor of the room the player is
+  standing in. (It is natural for a baseball to stop being in the
+  player inventory after they throw it.)
