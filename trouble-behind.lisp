@@ -76,7 +76,7 @@ formatting from a string."
                           (style rest caps nil)
                           (cons f (style rest caps t))))
                    ((char= f #\Space) (cons f (style rest caps ver)))
-                   ((char= f #\") (style rest t t))
+                   ((char= f #\") (style rest caps t))
 		   ((member f '(#\. #\? #\!)) (cons f (style rest t ver)))
 		   (caps (cons (char-upcase f) (style rest nil ver)))
 		   (t (cons (char-downcase f) (style rest nil ver))))))))
