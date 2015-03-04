@@ -13,8 +13,14 @@
   "The score the player has... Also additively measures how much
 trouble the player can be in.")
 
+(defparameter *item-locations* 
+  (mapcar (lambda (x) (cons (car x) (caadr x)))
+	  (cadr (assoc 'item-details *map*)))
+  "An alist containing the locations of items")
+
 (defparameter *events-complete* '()
   "A list of events that have been successfully completed.")
+
 
 ;; Dynamically loads things from the map
 (defmacro defmap (entry getter-name fetcher-name)
@@ -36,6 +42,7 @@ individual item"
      (defun (setf ,getter-name) (new-value)
        (setf ,entry new-value))))
 
+
 ;; Load each type of map item we care about and creates a whole mess
 ;; of utility functions
 (defmap nodes get-nodes get-node)
@@ -44,10 +51,6 @@ individual item"
 (defmap item-details get-item-details get-item-detail)
 (defmap events get-event-list get-event)
 
-(defparameter *item-locations* 
-  (mapcar (lambda (x) (cons (car x) (caadr x)))
-	  (cadr (assoc 'item-details *map*)))
-  "An alist containing the locations of items")
 
 ;; Grammar and string output functions
 (defun fluff-word-p (word)
@@ -80,11 +83,12 @@ formatting from a string."
 		   ((member f '(#\. #\? #\!)) (cons f (style rest t ver)))
 		   (caps (cons (char-upcase f) (style rest nil ver)))
 		   (t (cons (char-downcase f) (style rest nil ver))))))))
-    (coerce (style (coerce (string-trim "()" str) 'list) t nil) 'string)))
+    (coerce (style (coerce str 'list) t nil) 'string)))
 
 (defun stylize-list (list)
   "Stylizes a list as a pretty string."
-  (stylize-string (prin1-to-string list)))
+  (stylize-string (string-trim "()" (prin1-to-string list))))
+
 
 ;; Querying
 (defun item-location (item)
@@ -97,6 +101,13 @@ otherwise."
   (loop for i in *item-locations*
      when (eq item (car i)) collect i into acc
      when (< 1 (length acc)) return t))
+
+(defun can-see (item location)
+  "Checks if you can see an item currently"
+  (let ((loc (item-location item)))
+    (or (eq location loc)
+	(eq 'inventory loc))))
+
 
 ;; Game description functions
 (defun describe-path (edge)
@@ -120,11 +131,6 @@ otherwise."
 		     (cadadr item-detail))))))
 	  item-details))
 
-(defun can-see (item location)
-  "Checks if you can see an item currently"
-  (let ((loc (item-location item)))
-    (or (eq location loc)
-	(eq 'inventory loc))))
 
 ;; Player location-oriented functions
 (defun look ()
@@ -172,6 +178,7 @@ otherwise."
       (progn (push (cons item *player-location*) *item-locations*)
 	     `(you drop the ,item on the floor.))
       `(you dont have that.)))
+
 
 ;; Advaced metaprogramming thingies
 (defmacro when-player (&rest arg-list)
@@ -235,6 +242,7 @@ Valid words are:
               '(you already did that.))
           '(huh?)))))
 
+
 ;; Map utility functions
 (defun item-is-now-at (item place)
   "Moves an item to some place."
@@ -244,6 +252,7 @@ Valid words are:
   "Connects two places with an item."
     (push (list direction1 place2 item) (get-edges place1))
     (push (list direction2 place1 item) (get-edges place2)))
+
 
 ;; Game REPL functions
 (defun tb-eval (&rest input)
