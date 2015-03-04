@@ -35,7 +35,7 @@
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))
    (shard (ether (a large ceramic shard rests here.)))
-   (recliner (living-room (you see a "large," somewhat-worn "recliner")))
+   (recliner (living-room (you see a "large," somewhat-worn "recliner".)))
    (vase (living-room (a humongous shelf sits across the room from the
 			 "recliner," a beautiful "Ming" vase rests on
 			 top of the shelf.)))))
@@ -45,28 +45,28 @@
      ((baseball clock) 10
       (when-player can see baseball and is in your-bedroom)
       (uh-oh! the clock shatters!)
-      (you are in your bedroom. a broken clock sits sadly on the wall.)
-      (item-is-now-at 'baseball 'your-bedroom))
+      ((new-location-description
+	'(you are in your bedroom. a broken clock sits sadly on the wall.))
+       (item-is-now-at 'baseball 'your-bedroom)))
      
      ((baseball window) 50
       (when-player can see baseball and is in the hallway)
       (the window shatters into a waterfall of shards! oh man... you
            are going to be in trouble for this one for sure! the ball
            descends into the tall grass of the yard below.)
-      (you are in a long hallway. a brisk wind gusts in from the
-           shattered window.)
-      (item-is-now-at 'baseball 'yard))
+      ((new-location-description
+	'(you are in a long hallway. a brisk wind gusts in from the
+	  shattered window.))
+       (item-is-now-at 'baseball 'yard)))
      
      ((baseball vase) 150
       (when-player can see baseball and can see vase)
       (the vase shatters! that vase was priceless. there is no way you
            are getting away with that one! one of the larger shards
            falls to the floor.)
-      ()
-      (progn
-	(item-is-now-at 'vase 'ether)
-        (item-is-now-at 'shard *player-location*)
-        (item-is-now-at 'baseball *player-location*))))
+      ((item-is-now-at 'vase 'ether)
+       (item-is-now-at 'shard *player-location*)
+       (item-is-now-at 'baseball *player-location*))))
 
    (put
     ((blanket window) 0     
@@ -74,6 +74,7 @@
                   already (throw baseball window))
      (you let the blanket droop out the window. it looks like you can
           climb down.)
-     (you are in a long hallway. a blanket hanging from the broken
-          window sways gently in the wind.)
-     (connect-places 'hallway 'west 'yard 'east 'blanket))))))
+     ((new-location-description
+       '(you are in a long hallway. a blanket hanging from the broken
+	 window sways gently in the wind.))
+     (connect-places 'hallway 'west 'yard 'east 'blanket)))))))

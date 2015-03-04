@@ -234,9 +234,7 @@ Valid words are:
                     (incf *trouble-points* (second form))
                     (push input *events-complete*)
                     (when (fifth form)
-                      (setf (car (get-node *player-location*)) (fifth form)))
-                    (when (sixth form)
-                      (eval (sixth form)))
+		      (mapc #'eval (fifth form)))
                     (fourth form))
                   '(you cannot do that.))
               '(you already did that.))
@@ -244,6 +242,10 @@ Valid words are:
 
 
 ;; Map utility functions
+(defun new-location-description (description &optional place)
+  "Sets a new description for the passed-in location"
+  (setf (car (get-node (or place *player-location*))) description))
+  
 (defun item-is-now-at (item place)
   "Moves an item to some place."
   (push (cons item place) *item-locations*))
