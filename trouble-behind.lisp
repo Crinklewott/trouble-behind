@@ -9,11 +9,6 @@
   (cadr (assoc 'player-location *map*))
   "The current location of the player")
 
-(defparameter *item-locations* 
-  (mapcar (lambda (x) (cons (car x) (caadr x)))
-	  (cadr (assoc 'item-location-details *map*)))
-  "An alist containing the locations of items")
-
 (defparameter *trouble-points* 0
   "The score the player has... Also additively measures how much
 trouble the player can be in.")
@@ -46,9 +41,13 @@ individual item"
 (defmap nodes get-nodes get-node)
 (defmap edges get-all-edges get-edges)
 (defmap items get-items get-item)
-(defmap item-location-details get-all-item-details get-item-details)
-(defmap world-items get-all-world-item-lists get-world-item-list)
+(defmap item-details get-item-details get-item-detail)
 (defmap events get-event-list get-event)
+
+(defparameter *item-locations* 
+  (mapcar (lambda (x) (cons (car x) (caadr x)))
+	  (cadr (assoc 'item-details *map*)))
+  "An alist containing the locations of items")
 
 ;; Grammar and string output functions
 (defun fluff-word-p (word)
@@ -125,8 +124,7 @@ otherwise."
   "Checks if you can see an item currently"
   (let ((loc (item-location item)))
     (or (eq location loc)
-	(eq 'inventory loc)
-        (assoc item (get-world-item-list location)))))
+	(eq 'inventory loc))))
 
 ;; Player location-oriented functions
 (defun look ()
@@ -134,13 +132,12 @@ otherwise."
   (append
    (car (get-node *player-location*))
    (describe-edges (get-edges *player-location*))
-   (describe-items-at-location (get-all-item-details) *player-location*)))
+   (describe-items-at-location (get-item-details) *player-location*)))
 
 (defun look-at (item)
   "Gets the player to look at an item if they can see it."
   (if (can-see item *player-location*)
-      (or (car (get-item item))
-          (cadr (assoc 'vase (get-world-item-list *player-location*))))
+      (car (get-item item))
       `(you cannot see any ,item around here.)))
 
 (defun walk (direction)
@@ -150,12 +147,6 @@ otherwise."
 	(progn (setf *player-location* (cadr edge))
 	       (look))
 	`(i cannot see anywhere ,direction of here.))))
-
-(defun destroy-world-item (location item)
-  "Destroys a world item so you can't see it any more."
-  (setf (get-world-item-list location)
-        (remove-if (lambda (i) (eq item (car i)))
-                   (get-world-item-list location))))
 
 (defun inventory ()
   "Returns the player's inventory"
@@ -168,8 +159,11 @@ otherwise."
   (if (can-see item *player-location*)
       (if (member item (inventory))
 	  '(you already have that.)
-	  (progn (push (cons item 'inventory) *item-locations*)
-	    `(you pick up the ,item)))
+	  (let ((excuse (cadr (get-item item))))
+	    (if (not excuse)
+		(progn (push (cons item 'inventory) *item-locations*)
+		       `(you pick up the ,item))
+	        excuse)))
       `(you cannot see ,(a/an item) ,item from here.)))
 
 (defun drop (item)

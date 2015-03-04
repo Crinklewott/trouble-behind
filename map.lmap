@@ -4,10 +4,7 @@
   ((your-bedroom (you are in your bedroom. a clock ticks on the wall.))
    (hallway (you are in a long hallway. there is a window halfway down
                  the hall on the west side.))
-   (living-room (you are in a spacious living room. a humongous shelf
-                     sits across the room from a "large,"
-                     somewhat-worn "recliner," a beautiful "Ming" vase
-                     rests on top of the shelf.))
+   (living-room (you are in a spacious living room.))
    (yard (you are in a medium-sized yard. it looks like the
               grass "hasn't" been cut for ages.))))
  
@@ -24,19 +21,24 @@
                   still looks like it can do some damage.))
    (shard (this large shard still looks beautiful in a "way," but is
                 no comparison to what it once was. it also look like
-                it could cause some pretty serious cuts.))))
+                it could cause some pretty serious cuts.))
 
- (item-location-details
+   (vase (a priceless "Ming" vase sits tucked away on a ridiculously
+	    large shelf out of reach. very bad things would happen if
+	    this broke.)
+	 (it is too high for you to reach.))
+   (recliner (a "slightly-worn," but visibly comfortable recliner.)
+	     (the recliner is in a position that makes moving it too
+		  much effort for you to care to continue.))))
+
+ (item-details
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))
-   (shard (ether (a large ceramic shard rests here.)))))
-
- (world-items
-  ((living-room (vase (a priceless "Ming" vase sits tucked away on a
-                         ridiculously large shelf out of reach. very
-                         bad things would happen if this broke.))
-                (recliner (a "slightly-worn," but visibly comfortable
-                             recliner.)))))
+   (shard (ether (a large ceramic shard rests here.)))
+   (recliner (living-room (you see a "large," somewhat-worn "recliner")))
+   (vase (living-room (a humongous shelf sits across the room from the
+			 "recliner," a beautiful "Ming" vase rests on
+			 top of the shelf.)))))
  
  (events
   ((throw
@@ -62,7 +64,7 @@
            falls to the floor.)
       ()
       (progn
-        (destroy-world-item *player-location* 'vase)
+	(item-is-now-at 'vase 'ether)
         (item-is-now-at 'shard *player-location*)
         (item-is-now-at 'baseball *player-location*))))
 
