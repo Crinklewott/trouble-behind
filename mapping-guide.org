@@ -5,7 +5,8 @@ Trouble Behind has a pretty extensive map system composed entirely of
 [[http://en.wikipedia.org/wiki/S-expression][S-Expressions]] (Just a bunch of nested lists).
 
 * S-Expressions
-An S-Expression in this case is a set of parenthesis inside them...
+An S-Expression in this case is a set of parenthesis with a number of
+symbols (words) inside them...
 
 For example:
 #+BEGIN_SRC lisp
