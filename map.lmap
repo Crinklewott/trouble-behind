@@ -35,7 +35,7 @@
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
    (baseball (your-bedroom (there is a baseball sitting on your desk.)))
    (shard (ether (a large ceramic shard rests here.)))
-   (recliner (living-room (you see a "large," somewhat-worn "recliner".)))
+   (recliner (living-room (you see a "large," somewhat-worn recliner.)))
    (vase (living-room (a humongous shelf sits across the room from the
 			 "recliner," a beautiful "Ming" vase rests on
 			 top of the shelf.)))))
