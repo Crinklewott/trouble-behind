@@ -1,0 +1,65 @@
+#+TITLE:The map of Trouble Behind
+#+AUTHOR:thingywhat
+
+The map in Trouble Behind is currently in progress, though ideally, it
+should be a large enough map to get into all kinds of trouble, with
+many different means to get from one node to the next.
+
+This file will be used for planning, and eventually, as a description
+of the entire game world for those that like to take the fun out of
+their own exploration.
+
+* Legend
+For the ASCII maps, the following is a general idea of what some of
+the funky special characters you'll see mean:
+
+#+BEGIN_EXAMPLE
+ | |,-,\+ | Wall        |
+ | #      | Edge        |
+ | *      | Hidden edge |
+ | \      | Locked door |
+#+END_EXAMPLE
+
+The characters in maps are not necessarily always the above, some are
+simply there to act as a visual aid, or to make the map look nicer.
+
+* Your house
+Your house is the starting point of Trouble Behind.
+
+In it, you will find a trusty baseball that can be used for all kinds
+of mischief... There are a number of hidden compartments, and one
+hidden room: The crawlspace under the kitchen.
+
+Both visible exits are locked, and the player will need to find a way
+to get past them if they wish to expand their domain.
+
+There are not very many places to run in this house, (It's not a very
+big place.) but several locations you can hide.
+
+** Map
+Below is an ASCII representation of the layout of the starting house:
+#+BEGIN_EXAMPLE
+  +--------------+--------------+-----+-------------+
+  |..............|              |     |.............|
+  |..............| Your Bedroom #     |.............|
+  |..............*              |     |.............|
+  |..............|              |  H  |.............|
+  |..............|--------------+  a  |.............|
+  |..............|------------+ |  l  |.............|
+  |..............|            | |  l  *.............|
+  |..............|            | |  w  |.............|
+  |..............| Kitchen w/ | |  a  |.............|
+  |..Front.Yard..* Crawlspace | |  y  |..Back.Yard..|
+  |..............| underneath |-|     |.............|
+  |..............|            * *     |.............|
+  |..............|            |-|     +------#---+..|
+  |..............|--+#+-------+ |     |          |..|
+  |..............|--+#+---------+--#--+          |..|
+  |..............|                    |          |..|
+  |..............|                    |   Deck   |..|
+  |..............\                    \          |..|
+  |..............|   Living Room      |          |..|
+  |..............|                    |          |..|
+  |..............|                    +----------+..|
+  +--------------+--------------------+-------------+
+#+END_EXAMPLE
