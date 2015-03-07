@@ -2,18 +2,54 @@
 
  (nodes
   ((your-bedroom (you are in your bedroom. a clock ticks on the wall.))
-   (hallway (you are in a long hallway. there is a window halfway down
-                 the hall on the west side.))
-   (living-room (you are in a spacious living room.))
-   (yard (you are in a medium-sized yard. it looks like the
-              grass "hasn't" been cut for ages.))))
+   (hallway
+    (you are in a long hallway. there is a window halfway down the
+         hall on the west side.))
+   (dining-room
+    (you are in a dimly-lit dining room. a solid oak table lined with
+         several chairs sits in the middle of the room.))
+   (front-yard
+    (you are now standing in an incredibly tidy yard. the grass is cut
+         and "green," and several lawn ornaments line the front of a
+         beautiful garden. this yard is far nicer than the back
+         "one," as to keep up appearances.))
+   (deck
+    (you now stand on a wooden deck. the hand rails are made of a
+         black-painted "aluminum," as though someone gave up building
+         after they made the floor.))
+   (kitchen
+    (you are now in the middle of a brightly-lit kitchen. everything
+         appears to be put away and is neat and tidy.))
+   (crawlspace
+    ("You've" crawled into a "dark," claustrophobic crawl-space. you
+              can barely make out your hand in front of your face.))
+   (rec-room
+    (you now stand in a "Rec Room," light floods in from a sizable
+         window.))
+   (entry
+    (you are in an entryway. dual closets line the two adjacent walls
+         in the room.))
+   (living-room
+    (you are in a spacious living room.))
+   (back-yard
+    (you are in a medium-sized yard. it looks like the grass "hasn't"
+         been cut for ages.))))
  
  (edges
   ((your-bedroom (west hallway door))
    (hallway (east your-bedroom door)
-	    (south living-room exit))
-   (living-room (north hallway exit))
-   (yard)))
+	    (south dining-room exit))
+   (dining-room (north hallway exit)
+                (northeast kitchen door)
+                (west rec-room door))
+   (kitchen (south dining-room door))
+   (deck (north stairs back-yard))
+   (back-yard (south stairs deck))
+   (rec-room (north living-room entry)
+             (east dining-room door))
+   (living-room (south rec-room entry)
+                (west entry door))
+   (entry (east living-room door))))
 
  (items
   ((blanket (a cozy blanket. it also happens to be quite long.))
@@ -57,7 +93,7 @@
       ((new-location-description
 	'(you are in a long hallway. a brisk wind gusts in from the
 	  shattered window.))
-       (item-is-now-at 'baseball 'yard)))
+       (item-is-now-at 'baseball 'back-yard)))
      
      ((baseball vase) 150
       (when-player can see baseball and can see vase)
@@ -74,7 +110,8 @@
                   already (throw baseball window))
      (you let the blanket droop out the window. it looks like you can
           climb down.)
-     ((new-location-description
+     ((item-is-now-at 'blanket 'ether)
+      (new-location-description
        '(you are in a long hallway. a blanket hanging from the broken
 	 window sways gently in the wind.))
-     (connect-places 'hallway 'west 'yard 'east 'blanket)))))))
+     (connect-places 'hallway 'west 'back-yard 'east 'blanket)))))))
