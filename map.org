@@ -37,14 +37,15 @@ There are not very many places to run in this house, (It's not a very
 big place.) but several locations you can hide.
 
 ** Map
-Below is an ASCII representation of the layout of the starting house:
+Below is an ASCII representation of the layout of the top floor of the
+starting house:
 #+BEGIN_EXAMPLE
   +--------------+-------------+--------------+-----+-------------+
+  |..............|   # Stairs  |              |     |.............|
+  |..............|   +---------| Your Bedroom #     |.............|
   |..............|             |              |     |.............|
-  |..............|             * Your Bedroom #     |.............|
-  |..............|             |              |     |.............|
-  |..............| Living room |              |  H  |.............|
-  |..............|             |--------------+  a  |.............|
+  |..............|             |              |  H  |.............|
+  |..............| Living room |--------------+  a  |.............|
   |..............|             |------------+ |  l  |.............|
   |..............+---+         |            | |  l  *.............|
   |..............| E |         |            | |  w  |.............|
@@ -61,4 +62,30 @@ Below is an ASCII representation of the layout of the starting house:
   |..............|             |                    |          |..|
   |..............|             |                    +----------+..|
   +--------------+-------------+--------------------+-------------+
+#+END_EXAMPLE
+
+And the basement:
+#+BEGIN_EXAMPLE
+  +-------------+-----+--------------+
+  |   | Stairs  #     #              |
+  |-#-+---------|     |              |
+  |             |     |   Bedroom    |
+  |             |  H  |              |
+  |             |  a  |              |
+  |             |  l  |              |
+  +----#--------+  l  +--------------|
+  |             |  w  |              |
+  |             |  a  |              |
+  |             |  y  |              |
+  |             #     #              |
+  |             |     |              |
+  |             |     |              |
+  |             |     |              |
+  |             |--#--+--------------|
+  |             |                    |
+  |             |                    |
+  |             #                    |
+  |             |                    |
+  |             |                    |
+  +-------------+--------------------+
 #+END_EXAMPLE
