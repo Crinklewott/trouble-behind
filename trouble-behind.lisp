@@ -286,7 +286,11 @@ performs the respective game commands passed in."
                   (n '(north))
                   (e '(east))
                   (s '(south))
-                  (w '(west)))))
+                  (w '(west))
+                  (ne '(northeast))
+                  (nw '(northwest))
+                  (se '(southeast))
+                  (sw '(southwest)))))
       (otherwise
        (cond
          ((member command
