@@ -23,9 +23,12 @@
    (crawlspace
     ("You've" crawled into a "dark," claustrophobic crawl-space. you
               can barely make out your hand in front of your face.))
+   (garage
+    (you are now in a small "garage," you can smell the remnants of
+         many fumes that have been in here.))
    (rec-room
-    (you now stand in a "Rec Room," light floods in from a sizable
-         window.))
+    (you now stand in a "Rec Room," dim light shines in from a window
+         near the ceiling.))
    (entry
     (you are in an entryway. dual closets line the two adjacent walls
          in the room.))
@@ -33,7 +36,26 @@
     (you are in a spacious living room.))
    (back-yard
     (you are in a medium-sized yard. it looks like the grass "hasn't"
-         been cut for ages.))))
+         been cut for ages.))
+   (downstairs-hallway
+    (you are in a dimly-lit hallway lined with many doors.))
+   (laundry-room
+    (you are in the laundry room. wet clothing is hanging from the
+         ceiling.))
+   (closet
+    (you are in a small closet. various cleaning products line the
+         shelves you are leaning on.))
+   (washroom
+    (you are in a washroom. a bright shower curtain draws your eyes
+         away from the dark color-scheme the rest of the room has.))
+   (study
+    (you are in the study. large bookcases line the "wall," covering
+         topics of "history," "mathematics," and programming.))
+   (study-washroom
+    (you are in a small washroom))
+   (bedroom
+    (you are in a large bedroom. a chill crawls down your spine. you
+         feel like you probably "shouldn't" be here.))))
  
  (edges
   ((your-bedroom (west hallway door))
@@ -42,14 +64,32 @@
    (dining-room (north hallway exit)
                 (northeast kitchen door)
                 (west rec-room door))
-   (kitchen (south dining-room door))
-   (deck (north stairs back-yard))
-   (back-yard (south stairs deck))
-   (rec-room (north living-room entry)
-             (east dining-room door))
-   (living-room (south rec-room entry)
-                (west entry door))
-   (entry (east living-room door))))
+   (kitchen (south dining-room door)
+            (west living-room arch))
+   (deck (north back-yard stairs))
+   (back-yard (south deck stairs))
+   (garage (north living-room entry)
+           (east dining-room door))
+   (living-room (south garage entry)
+                (west entry door)
+                (east kitchen arch)
+                (north downstairs-hallway stairs))
+   (entry (east living-room door))
+   (downstairs-hallway (northwest living-room stairs)
+                       (northeast bedroom door)
+                       (southwest rec-room door)
+                       (southeast study door)
+                       (south washroom door))
+   (rec-room (north laundry-room door)
+             (east downstairs-hallway door))
+   (laundry-room (south rec-room door)
+                 (north closet door))
+   (closet (south laundry-room door))
+   (bedroom (west downstairs-hallway door))
+   (study (west downstairs-hallway door)
+          (south study-washroom door))
+   (washroom (north downstairs-hallway door))
+   (study-washroom (north study door))))
 
  (items
   ((blanket (a cozy blanket. it also happens to be quite long.))
