@@ -6,8 +6,7 @@
     (you are in a long hallway. there is a window halfway down the
          hall on the west side.))
    (dining-room
-    (you are in a dimly-lit dining room. a solid oak table lined with
-         several chairs sits in the middle of the room.))
+    (you are in a dimly-lit dining room.))
    (front-yard
     (you are now standing in an incredibly tidy yard. the grass is cut
          and "green," and several lawn ornaments line the front of a
@@ -40,8 +39,7 @@
    (downstairs-hallway
     (you are in a dimly-lit hallway lined with many doors.))
    (laundry-room
-    (you are in the laundry room. wet clothing is hanging from the
-         ceiling.))
+    (you are in the laundry room.))
    (closet
     (you are in a small closet. various cleaning products line the
          shelves you are leaning on.))
@@ -68,6 +66,7 @@
             (west living-room arch))
    (deck (north back-yard stairs))
    (back-yard (south deck stairs))
+   (front-yard)
    (garage (north living-room entry)
            (east dining-room door))
    (living-room (south garage entry)
@@ -105,7 +104,13 @@
 	 (it is too high for you to reach.))
    (recliner (a "slightly-worn," but visibly comfortable recliner.)
 	     (the recliner is in a position that makes moving it too
-		  much effort for you to care to continue.))))
+		  much effort for you to care to continue.))
+   (table (a large table with many chairs that looks like it may have
+             been very handy if guests ever stopped by.)
+          (you might be able to pick this up if you were the "Hulk,"
+               but "alas," you are not.))
+   (laundry (a damp shirts and pants that appear to have been washed
+               recently.))))
 
  (item-details
   ((blanket (your-bedroom (there is a cozy blanket on your bed.)))
@@ -114,7 +119,11 @@
    (recliner (living-room (you see a "large," somewhat-worn recliner.)))
    (vase (living-room (a humongous shelf sits across the room from the
 			 "recliner," a beautiful "Ming" vase rests on
-			 top of the shelf.)))))
+			 top of the shelf.)))
+   (table (dining-room (a solid oak table lined with several chairs
+                          sits in the middle of the room.)))
+   (laundry (laundry-room (some wet clothing is hanging from the
+                                ceiling.)))))
  
  (events
   ((throw
