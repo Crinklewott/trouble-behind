@@ -281,7 +281,7 @@ performs the respective game commands passed in."
        (if (cdr input)
            (walk (cadr input))
            '(walk where?)))
-      ((n e s w)
+      ((n e s w ne nw se sw)
        (tb-eval (case command
                   (n '(north))
                   (e '(east))
@@ -294,7 +294,8 @@ performs the respective game commands passed in."
       (otherwise
        (cond
          ((member command
-                  (append '(north east south west)
+                  (append '(north east south west northeast northwest
+                            southeast southwest)
                           (mapcar #'car (get-edges *player-location*))))
           (walk command))
          (t (special-command input)))))))
