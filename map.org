@@ -14,10 +14,10 @@ For the ASCII maps, the following is a general idea of what some of
 the funky special characters you'll see mean:
 
 #+BEGIN_EXAMPLE
- | |,-,\+ | Wall        |
- | #      | Edge        |
- | *      | Hidden edge |
- | \      | Locked door |
+ | |, -, and + | Wall        |
+ | #           | Edge        |
+ | *           | Hidden edge |
+ | \           | Locked door |
 #+END_EXAMPLE
 
 The characters in maps are not necessarily always the above, some are
