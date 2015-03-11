@@ -95,7 +95,7 @@ formatting from a string."
   "Fetches the location of an item"
   (cdr (assoc item *item-locations*)))
 
-(defun item-moved (item)
+(defun item-moved-p (item)
   "Returns t if an item has moved from its original location, nil
 otherwise."
   (loop for i in *item-locations*
@@ -126,7 +126,7 @@ otherwise."
 	    (copy-list
 	     (let ((item (car item-detail)))
 	       (when (eq location (item-location item))
-		 (if (item-moved item)
+		 (if (item-moved-p item)
 		     `(there is ,(a/an item) ,item on the floor here.)
 		     (cadadr item-detail))))))
 	  item-details))
