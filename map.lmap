@@ -61,7 +61,7 @@
 	    (south dining-room exit))
    (dining-room (north hallway exit)
                 (northeast kitchen door)
-                (west rec-room door))
+                (west garage door))
    (kitchen (south dining-room door)
             (west living-room arch))
    (deck (north back-yard stairs))
