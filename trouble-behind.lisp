@@ -310,3 +310,34 @@ output."
      do (progn
 	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
 	  (fresh-line))))
+
+
+;; AI functions!
+(defun make-distance-hash (start)
+  "Creates a hash table that lists the shortest distance to each node
+from the staring node passed in."
+  (let ((visited (make-hash-table)))
+    (labels ((neighbors (node)
+	       (mapcar #'cadr (get-edges node)))
+	     (traverse (node depth)
+	       (let ((current (gethash node visited)))
+		 (unless (and current (< current depth))
+		   (setf (gethash node visited) depth)
+		   (mapc (lambda (node)
+			   (traverse node (1+ depth)))
+			 (neighbors node))))))
+      (traverse start 0))
+    visited))
+
+(defun get-path (start end)
+  "Gets the shortest path from one node to another."
+  (loop with hash = (make-distance-hash end)
+     and start = start
+     for distance from (gethash start hash) downto 0
+     and node = start then
+       (cdr (assoc (1- distance)
+                   (mapcar (lambda (node)
+                             (cons (gethash (cadr node) hash)
+                                   (cadr node)))
+                           (get-edges node)) :test #'equal))
+     collect node))
