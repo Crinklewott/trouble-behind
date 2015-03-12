@@ -13,7 +13,7 @@
   "The score the player has... Also additively measures how much
 trouble the player can be in.")
 
-(defparameter *item-locations* 
+(defparameter *item-locations*
   (mapcar (lambda (x) (cons (car x) (caadr x)))
 	  (cadr (assoc 'item-details *map*)))
   "An alist containing the locations of items")
@@ -21,6 +21,13 @@ trouble the player can be in.")
 (defparameter *events-complete* '()
   "A list of events that have been successfully completed.")
 
+(defparameter *npc-locations*
+  (let ((hash (make-hash-table)))
+    (mapc (lambda (x)
+	    (setf (gethash (car x) hash) (cadr x)))
+	  (cadr (assoc 'npc *map*)))
+    hash)
+  "A hash-table of NPC locations.")
 
 ;; Dynamically loads things from the map
 (defmacro defmap (entry getter-name fetcher-name)
@@ -50,7 +57,7 @@ individual item"
 (defmap items get-items get-item)
 (defmap item-details get-item-details get-item-detail)
 (defmap events get-event-list get-event)
-
+(defmap npc get-npcs get-npc)
 
 ;; Grammar and string output functions
 (defun fluff-word-p (word)
@@ -245,7 +252,7 @@ Valid words are:
 (defun new-location-description (description &optional place)
   "Sets a new description for the passed-in location"
   (setf (car (get-node (or place *player-location*))) description))
-  
+
 (defun item-is-now-at (item place)
   "Moves an item to some place."
   (push (cons item place) *item-locations*))
