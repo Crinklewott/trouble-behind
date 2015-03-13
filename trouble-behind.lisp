@@ -351,3 +351,11 @@ from the staring node passed in."
 					       (cadr node)))
 				       (get-edges node)) :test #'equal))
 		 collect node)))))
+
+(defun update-random-path ()
+  "Updates a random path so AIs can slowly \"learn\" new paths
+  eventually if they are more efficeint than before."
+  (flet ((random-node ()
+	   (let ((nodes (mapcar #'car (get-nodes))))
+	     (nth (random (length nodes)) nodes))))
+    (get-path (random-node) (random-node) t)))
