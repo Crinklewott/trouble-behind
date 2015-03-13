@@ -336,15 +336,18 @@ from the staring node passed in."
       (traverse start 0))
     visited))
 
-(defun get-path (start end)
-  "Gets the shortest path from one node to another."
-  (loop with hash = (make-distance-hash end)
-     and start = start
-     for distance from (gethash start hash) downto 0
-     and node = start then
-       (cdr (assoc (1- distance)
-                   (mapcar (lambda (node)
-                             (cons (gethash (cadr node) hash)
-                                   (cadr node)))
-                           (get-edges node)) :test #'equal))
-     collect node))
+(let ((cache (make-hash-table :test #'equal)))
+  (defun get-path (start end &optional retry)
+    "Gets the shortest path from one node to another."
+    (or (and (null retry) (gethash (cons start end) cache))
+	(setf (gethash (cons start end) cache)
+	      (loop with hash = (make-distance-hash end)
+		 and start = start
+		 for distance from (gethash start hash) downto 0
+		 and node = start then
+		   (cdr (assoc (1- distance)
+			       (mapcar (lambda (node)
+					 (cons (gethash (cadr node) hash)
+					       (cadr node)))
+				       (get-edges node)) :test #'equal))
+		 collect node)))))
