@@ -343,7 +343,7 @@ from the staring node passed in."
 	(setf (gethash (cons start end) cache)
 	      (loop with hash = (make-distance-hash end)
 		 and start = start
-		 for distance from (gethash start hash) downto 0
+		 for distance from (or (gethash start hash) 0) downto 0
 		 and node = start then
 		   (cdr (assoc (1- distance)
 			       (mapcar (lambda (node)
