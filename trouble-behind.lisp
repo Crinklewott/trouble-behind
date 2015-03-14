@@ -351,3 +351,15 @@ from the staring node passed in."
 	   (let ((nodes (mapcar #'car (get-nodes))))
 	     (nth (random (length nodes)) nodes))))
     (get-path (random-node) (random-node) t)))
+
+(defun update-npcs ()
+  "Lets all NPCs continue their AI actions"
+  (setf (get-npcs)
+	(mapcar (lambda (npc)
+		  (let ((neighbors (mapcar #'cadr (get-edges (cadr npc)))))
+		    (list (car npc)
+			  (if (and (zerop (random 3))
+				   (not (zerop (length neighbors))))
+			      (nth (random (length neighbors)) neighbors)
+			      (cadr npc)))))
+		(get-npcs))))
