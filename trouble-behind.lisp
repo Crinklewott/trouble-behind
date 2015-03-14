@@ -21,14 +21,6 @@ trouble the player can be in.")
 (defparameter *events-complete* '()
   "A list of events that have been successfully completed.")
 
-(defparameter *npc-locations*
-  (let ((hash (make-hash-table)))
-    (mapc (lambda (x)
-	    (setf (gethash (car x) hash) (cadr x)))
-	  (cadr (assoc 'npc *map*)))
-    hash)
-  "A hash-table of NPC locations.")
-
 ;; Dynamically loads things from the map
 (defmacro defmap (entry getter-name fetcher-name)
   "Defines a get-all-<things> function to fetch the alist for some
