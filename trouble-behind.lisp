@@ -314,6 +314,7 @@ output."
      when (eq (car input) 'quit)
      return t
      do (progn
+	  (setf (get-npcs) (update-npcs (get-npcs)))
 	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
 	  (fresh-line))))
 
