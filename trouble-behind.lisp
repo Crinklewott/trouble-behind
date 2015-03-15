@@ -131,7 +131,7 @@ otherwise."
 	  item-details))
 
 
-(defun describe-npcs-at-location (location npcs)
+(defun describe-npcs-at-location (npcs location)
   "Describes all of the NPCs in the past in list that are at the
 passed-in location."
   (mapcan (lambda (npc)
@@ -144,7 +144,8 @@ passed-in location."
   (append
    (car (get-node *player-location*))
    (describe-edges (get-edges *player-location*))
-   (describe-items-at-location (get-item-details) *player-location*)))
+   (describe-items-at-location (get-item-details) *player-location*)
+   (describe-npcs-at-location (get-npcs) *player-location*)))
 
 (defun look-at (item)
   "Gets the player to look at an item if they can see it."
