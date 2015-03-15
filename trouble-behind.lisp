@@ -131,6 +131,13 @@ otherwise."
 	  item-details))
 
 
+(defun describe-npcs-at-location (location npcs)
+  "Describes all of the NPCs in the past in list that are at the
+passed-in location."
+  (mapcan (lambda (npc)
+	    (list (car npc) 'is 'in 'the 'room 'with 'you.))
+	  (remove-if-not (lambda (npc) (eq (cadr npc) location)) npcs)))
+
 ;; Player location-oriented functions
 (defun look ()
   "Outputs what the player sees around them."
