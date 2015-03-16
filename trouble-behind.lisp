@@ -358,7 +358,7 @@ from the staring node passed in."
 	     (nth (random (length nodes)) nodes))))
     (get-path (random-node) (random-node) t)))
 
-;; NPC implementation details
+;; NPC command and AI implementation details
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
 in a while... Or if a path is set, to follow it."
@@ -379,7 +379,8 @@ tasks."
   "Tells an NPC they should go to a certain location."
   (setf (npc-path npc) (get-path (npc-location npc) location)))
 
-(defun tb-loop ()
+;; Main game loop
+(defun game-loop ()
   "Loops through user input passing it to tb-eval and stylyzing the
 output."
   (loop for input = '(look)
