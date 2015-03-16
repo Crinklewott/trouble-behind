@@ -1,5 +1,9 @@
 ;; Structs
-(defstruct npc name location (path nil) (anger 0))
+(defstruct npc
+  "An NPC is anything in the game world that isn't an object. Adding
+  an NPC to the *npcs* list below will make the NPC automagically
+  update accoroding to their AI implementation."
+  name location (path nil) (anger 0))
 
 ;; State
 (defparameter *map*
@@ -136,12 +140,13 @@ otherwise."
 	  item-details))
 
 
-(defun describe-npcs-at-location (npcs location)
+(defun describe-npcs-at-location (location)
   "Describes all of the NPCs in the past in list that are at the
 passed-in location."
-  (mapcan (lambda (npc)
-	    (list (npc-name npc) 'is 'in 'the 'room 'with 'you.))
-	  (remove-if-not (lambda (npc) (eq (npc-location npc) location)) npcs)))
+  (mapcan
+   (lambda (npc)
+     (list (npc-name npc) 'is 'in 'the 'room 'with 'you.))
+   (remove-if-not (lambda (npc) (eq (npc-location npc) location)) *npcs*)))
 
 ;; Player location-oriented functions
 (defun look ()
@@ -150,7 +155,7 @@ passed-in location."
    (car (get-node *player-location*))
    (describe-edges (get-edges *player-location*))
    (describe-items-at-location (get-item-details) *player-location*)
-   (describe-npcs-at-location *npcs* *player-location*)))
+   (describe-npcs-at-location *player-location*)))
 
 (defun look-at (item)
   "Gets the player to look at an item if they can see it."
@@ -353,15 +358,16 @@ from the staring node passed in."
 	     (nth (random (length nodes)) nodes))))
     (get-path (random-node) (random-node) t)))
 
-(defun update-npcs (npcs)
-  "Returns a list of updated NPCs after they completed their tasks."
+(defun update-npcs ()
+  "Updates all of the currently active NPCs after they completed their
+tasks."
   (mapc (lambda (npc)
 	  (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
 	    (when (and (zerop (random 3))
 		       (not (zerop (length neighbors))))
 	      (setf (npc-location npc)
 		    (nth (random (length neighbors)) neighbors)))))
-	npcs))
+	*npcs*))
 
 (defun tb-loop ()
   "Loops through user input passing it to tb-eval and stylyzing the
@@ -371,6 +377,6 @@ output."
      when (eq (car input) 'quit)
      return t
      do (progn
-	  (update-npcs *npcs*)
+	  (update-npcs)
 	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
 	  (fresh-line))))
