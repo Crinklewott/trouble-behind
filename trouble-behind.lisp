@@ -307,18 +307,6 @@ performs the respective game commands passed in."
           (walk command))
          (t (special-command input)))))))
 
-(defun tb-loop ()
-  "Loops through user input passing it to tb-eval and stylyzing the
-output."
-  (loop for input = '(look)
-     then (read-from-string (concatenate 'string "(" (read-line) ")"))
-     when (eq (car input) 'quit)
-     return t
-     do (progn
-	  (setf (get-npcs) (update-npcs (get-npcs)))
-	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
-	  (fresh-line))))
-
 
 ;; AI functions!
 (defun make-distance-hash (start)
@@ -370,3 +358,15 @@ from the staring node passed in."
 			(nth (random (length neighbors)) neighbors)
 			(cadr npc)))))
 	  npcs))
+
+(defun tb-loop ()
+  "Loops through user input passing it to tb-eval and stylyzing the
+output."
+  (loop for input = '(look)
+     then (read-from-string (concatenate 'string "(" (read-line) ")"))
+     when (eq (car input) 'quit)
+     return t
+     do (progn
+	  (setf (get-npcs) (update-npcs (get-npcs)))
+	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
+	  (fresh-line))))
