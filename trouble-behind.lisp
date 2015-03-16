@@ -361,18 +361,23 @@ from the staring node passed in."
 ;; NPC implementation details
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
-in a while."
-    (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
-      (when (and (zerop (random 3))
-		 (not (zerop (length neighbors))))
-	(setf (npc-location npc)
-	      (nth (random (length neighbors)) neighbors)))))
+in a while... Or if a path is set, to follow it."
+  (if (npc-path npc)
+      (setf (npc-location npc) (pop (npc-path npc)))
+      (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
+	(when (and (zerop (random 3))
+		   (not (zerop (length neighbors))))
+	  (setf (npc-location npc)
+		(nth (random (length neighbors)) neighbors))))))
  
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
   (mapc #'npc-ai *npcs*))
-   
+
+(defun npc-goto (npc location)
+  "Tells an NPC they should go to a certain location."
+  (setf (npc-path npc) (get-path (npc-location npc) location)))
 
 (defun tb-loop ()
   "Loops through user input passing it to tb-eval and stylyzing the
