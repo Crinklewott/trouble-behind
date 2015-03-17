@@ -97,6 +97,11 @@ formatting from a string."
   "Stylizes a list as a pretty string."
   (stylize-string (string-trim "()" (prin1-to-string list))))
 
+(defun princ-stylized-list (list)
+  "Princs a stylized list with proper capitalization and stuff."
+  (fresh-line)
+  (princ (stylize-list list))
+  (fresh-line))
 
 ;; Querying
 (defun item-location (item)
@@ -359,16 +364,36 @@ from the staring node passed in."
     (get-path (random-node) (random-node) t)))
 
 ;; NPC command and AI implementation details
+(defun display-walk (source npc)
+  "Outputs what a player would see given their current location if an
+NPC walked from some location to their current location."
+  (flet ((get-direction (source destination)
+	   (caar (remove-if-not (lambda (x) (eq destination (cadr x)))
+				(get-edges source)))))
+    (let ((destination (npc-location npc)))
+      (if (eq *player-location* source)
+	  (unless (eq *player-location* destination)
+	    (let ((direction (get-direction source destination)))
+	      (princ-stylized-list
+	       `(you see ,(npc-name npc) walk to the ,direction))))
+	  (when (eq *player-location* destination)
+	    (let ((direction (get-direction destination source)))
+	      (princ-stylized-list
+	       `(,(npc-name npc) enters from the ,direction))))))))
+      
+
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
 in a while... Or if a path is set, to follow it."
-  (if (npc-path npc)
-      (setf (npc-location npc) (pop (npc-path npc)))
-      (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
-	(when (and (zerop (random 3))
-		   (not (zerop (length neighbors))))
-	  (setf (npc-location npc)
-		(nth (random (length neighbors)) neighbors))))))
+  (let ((source (npc-location npc)))
+    (if (npc-path npc)
+	(setf (npc-location npc) (pop (npc-path npc)))
+	(let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
+	  (when (and (zerop (random 3))
+		     (not (zerop (length neighbors))))
+	    (setf (npc-location npc)
+		  (nth (random (length neighbors)) neighbors)))))
+    (display-walk source npc)))
  
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
