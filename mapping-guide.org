@@ -401,3 +401,11 @@ This entire action means:
 - The =baseball= is put onto the floor of the room the player is
   standing in. (It is natural for a baseball to stop being in the
   player inventory after they throw it.)
+
+* npcs
+NPCs are just an alist with two items:
+The first is the name of the npc, and the second is their starting
+location.
+
+They are just dumb and move around randomly right now, but more is
+soon to come.
