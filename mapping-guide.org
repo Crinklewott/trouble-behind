@@ -403,9 +403,18 @@ This entire action means:
   player inventory after they throw it.)
 
 * npcs
-NPCs are just an alist with two items:
-The first is the name of the npc, and the second is their starting
-location.
+The =npcs= section of the map is an alist that references the NPC name
+with their starting location.
 
-They are just dumb and move around randomly right now, but more is
-soon to come.
+For example:
+#+BEGIN_SRC lisp
+  (person bedroom)
+#+END_SRC
+
+This would define an NPC called "=person=" who starts in the
+"=bedroom=" node on the map.
+
+Currently NPCs only have two potential actions: Either they will
+occasionally move from one node to another neighbouring one, or if
+set, will walk the shortest route they can to reach a destination
+node.
