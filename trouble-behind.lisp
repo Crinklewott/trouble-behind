@@ -324,15 +324,17 @@ performs the respective game commands passed in."
 
 
 ;; AI functions!
-(defun make-distance-hash (start)
+(defun make-distance-hash (start &optional max-depth)
   "Creates a hash table that lists the shortest distance to each node
-from the staring node passed in."
+from the staring node passed in. Accepts an optional second parameter
+to limit how far to traverse."
   (let ((visited (make-hash-table)))
     (labels ((neighbors (node)
 	       (mapcar #'cadr (get-edges node)))
 	     (traverse (node depth)
 	       (let ((current (gethash node visited)))
-		 (unless (and current (< current depth))
+		 (unless (or (and max-depth (< max-depth depth))
+			     (and current (< current depth)))
 		   (setf (gethash node visited) depth)
 		   (mapc (lambda (node)
 			   (traverse node (1+ depth)))
