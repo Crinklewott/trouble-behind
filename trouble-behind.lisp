@@ -382,6 +382,9 @@ NPC walked from some location to their current location."
 	       `(,(npc-name npc) enters from the ,direction))))))))
       
 
+(defgeneric npc-ai (npc)
+  (:documentation "The AI that controls the passed in NPC each turn."))
+
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
 in a while... Or if a path is set, to follow it."
