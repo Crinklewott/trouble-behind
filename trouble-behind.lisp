@@ -240,6 +240,8 @@ Valid words are:
                    (otherwise (parse (cdr args) '())))))))
     (parse (remove-if #'fluff-word-p arg-list) 'and)))
 
+(defun npc-alert (distance location))
+
 (defun special-command-run-p (command)
   "Checks if a special command has run successfully."
   (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
@@ -251,13 +253,14 @@ Valid words are:
     (let ((form (assoc args event :test #'equal)))
       (if form
           (if (not (special-command-run-p input))
-              (if (eval (third form))
+              (if (eval (fourth form))
                   (progn
                     (incf *trouble-points* (second form))
+                    (npc-alert (third form) *player-location*)
                     (push input *events-complete*)
-                    (when (fifth form)
-		      (mapc #'eval (fifth form)))
-                    (fourth form))
+                    (when (sixth form)
+		      (mapc #'eval (sixth form)))
+                    (fifth form))
                   '(you cannot do that.))
               '(you already did that.))
           '(huh?)))))
