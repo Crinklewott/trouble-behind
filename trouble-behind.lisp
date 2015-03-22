@@ -223,23 +223,6 @@ passed-in location."
     "Clears the cache of distance-hashes"
     (setf distance-hashes (make-hash-table)))
 
-  (defun get-nodes-within-range (node max-distance)
-    "Returns an alist of the node names to distances within a set
-distance from a given source node."
-    (let ((hash (make-distance-hash node)))
-      (loop for room being the hash-keys of hash
-         for distance being the hash-values of hash
-         when (>= max-distance distance) collect (cons room distance))))
-
-  (defun get-npcs-within-range (node max-distance)
-    "Returns a list of NPCs within the specified distance of the
-passed in node."
-    (mapcan (lambda (node)
-              (mapcan (lambda (npc)
-                        (when (eq (car node) (npc-location npc))
-                          (list npc))) *npcs*))
-            (get-nodes-within-range node max-distance)))
-
   (defun make-distance-hash (start)
     "Creates a hash table that lists the shortest distance to each node
 from the staring node passed in."
@@ -255,6 +238,23 @@ from the staring node passed in."
                            (neighbors node))))))
         (traverse start 0))
       visited)))
+
+(defun get-nodes-within-range (node max-distance)
+  "Returns an alist of the node names to distances within a set
+distance from a given source node."
+  (let ((hash (make-distance-hash node)))
+    (loop for room being the hash-keys of hash
+       for distance being the hash-values of hash
+       when (>= max-distance distance) collect (cons room distance))))
+
+(defun get-npcs-within-range (node max-distance)
+  "Returns a list of NPCs within the specified distance of the
+passed in node."
+  (mapcan (lambda (node)
+            (mapcan (lambda (npc)
+                      (when (eq (car node) (npc-location npc))
+                        (list npc))) *npcs*))
+          (get-nodes-within-range node max-distance)))
 
 (let ((cache (make-hash-table :test #'equal)))
   (defun get-path (start end &optional retry)
