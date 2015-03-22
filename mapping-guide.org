@@ -143,14 +143,14 @@ game.
 For example:
 #+BEGIN_SRC lisp
   (throw
-    ((baseball clock) 10
+    ((baseball clock) 10 2
      (when-player can see baseball and is in your-bedroom)
      (uh-oh! the clock shatters!)
      ((new-location-description
        (you are in your bedroom. a broken clock sits sadly on the wall.))
       (item-is-now-at 'baseball 'your-bedroom)))
     
-    ((baseball window) 50
+    ((baseball window) 50 4
      (when-player can see baseball and is in the hallway)
      (the window shatters into a waterfall of shards! oh man... you
           are going to be in trouble for this one for sure! the ball
@@ -160,7 +160,7 @@ For example:
             shattered window.))
       (item-is-now-at 'baseball 'yard)))
     
-    ((baseball vase) 150
+    ((baseball vase) 150 2
      (when-player can see baseball and can see vase)
      (the vase shatters! that vase was priceless. there is no way you
           are getting away with that one! one of the larger shards
@@ -205,7 +205,29 @@ coincidentally, is the score you get for doing this action.
 #+END_SRC
 
 ** Third form
-The third form... Eg:
+The third form is the range in which NPCs can notice the event taking
+place... For example:
+#+BEGIN_SRC lisp
+  4
+#+END_SRC
+This means NPCs can notice this event occurring up to 4 nodes away
+from the actual event.
+
+So, for example, int the following declaration:
+#+BEGIN_SRC lisp
+  ((baseball clock) 10 2
+   (when-player can see baseball and is in your-bedroom)
+   (uh-oh! the clock shatters!)
+   ((new-location-description
+     (you are in your bedroom. a broken clock sits sadly on the wall.))
+    (item-is-now-at 'baseball 'your-bedroom)))
+#+END_SRC
+The number =2= is the range the event can be noticed, so any NPC
+within 2 moves of the place you threw the baseball at the clock will
+notice, and by default, will come investigate the event.
+
+* Fourth form
+The fourth form... Eg:
 #+BEGIN_SRC lisp
   (when-player can see baseball and is in your-bedroom)
 #+END_SRC
@@ -264,9 +286,9 @@ you can make this reasonably plain english in a way... For example:
 ...would mean the exact same thing as above, if that is easier
 for you to understand.
 
-** Fourth form
-The fourth form shows the message that the player will see when they
-sucessfully perform this action (Meaning the conditions in the second
+** Fifth form
+The fifth form shows the message that the player will see when they
+successfully perform this action (Meaning the conditions in the second
 pass), so:
 #+BEGIN_SRC lisp
   (uh-oh! the clock shatters! you retreive the baseball.)
@@ -275,8 +297,8 @@ pass), so:
 This is displayed when the player throws the baseball at the clock
 when the above conditions are met...
 
-** Fifth form
-The fifth and final form is optional... But if you specify it, it is
+** Sixth form
+The sixth and final form is optional... But if you specify it, it is
 any code inside of a list you wish to execute after the event has been
 triggered successfully.
 
@@ -284,6 +306,7 @@ There is are a few convenience functions for this, but you would need
 to know Lisp to do anything beyond that...
 
 The convenience functions are:
+
 *** item-is-now-at
 This function takes two quoted arguments, and puts an item that
 matches the first to the node that matches the second.
@@ -324,7 +347,7 @@ to the description in the list.
 This can also be used to change the description of places outside of
 the player's location with an optional second argument... So if the
 player triggered an event in a node called =your-room= and we had this
-in the fifth form:
+in the sixth form:
 #+BEGIN_SRC lisp
   (new-location-description
    '(you are in a long hallway. a brisk wind gusts in from the
@@ -378,7 +401,7 @@ With all of the above, consider the following form:
 
 #+BEGIN_SRC lisp
   (throw
-    ((baseball vase) 150
+    ((baseball vase) 150 2
      (when-player can see baseball and can see vase)
      (the vase shatters! that vase was priceless. there is no way you
           are getting away with that one! one of the larger shards falls
@@ -401,6 +424,8 @@ This entire action means:
 - The =baseball= is put onto the floor of the room the player is
   standing in. (It is natural for a baseball to stop being in the
   player inventory after they throw it.)
+- If any NPC is within 2 rooms of this event occurring, they will
+  notice it.
 
 * npcs
 The =npcs= section of the map is an alist that references the NPC name
@@ -418,3 +443,7 @@ Currently NPCs only have two potential actions: Either they will
 occasionally move from one node to another neighbouring one, or if
 set, will walk the shortest route they can to reach a destination
 node.
+
+Destination nodes are currently set when an NPC notices an event
+occurring. (IE: They are in range of the event's alert specified by
+the [[Third form][third form]].)
