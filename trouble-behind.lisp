@@ -324,23 +324,34 @@ performs the respective game commands passed in."
 
 
 ;; AI functions!
-(defun make-distance-hash (start &optional max-depth)
-  "Creates a hash table that lists the shortest distance to each node
-from the staring node passed in. Accepts an optional second parameter
-to limit how far to traverse."
-  (let ((visited (make-hash-table)))
-    (labels ((neighbors (node)
-	       (mapcar #'cadr (get-edges node)))
-	     (traverse (node depth)
-	       (let ((current (gethash node visited)))
-		 (unless (or (and max-depth (< max-depth depth))
-			     (and current (< current depth)))
-		   (setf (gethash node visited) depth)
-		   (mapc (lambda (node)
-			   (traverse node (1+ depth)))
-			 (neighbors node))))))
-      (traverse start 0))
-    visited))
+(let ((distance-hashes (make-hash-table)))
+  (defun clear-distance-hashes ()
+    "Clears the cache of distance-hashes"
+    (setf distance-hashes (make-hash-table)))
+
+  (defun get-nodes-within-range (node max-distance)
+    "Returns an alist of the node names to distances within a set
+distance from a given source node."
+    (let ((hash (make-distance-hash node)))
+      (loop for room being the hash-keys of hash
+         for distance being the hash-values of hash
+         when (>= max-distance distance) collect (cons room distance))))
+
+  (defun make-distance-hash (start)
+    "Creates a hash table that lists the shortest distance to each node
+from the staring node passed in."
+    (let ((visited (make-hash-table)))
+      (labels ((neighbors (node)
+                 (mapcar #'cadr (get-edges node)))
+               (traverse (node depth)
+                 (let ((current (gethash node visited)))
+                   (unless (and current (< current depth))
+                     (setf (gethash node visited) depth)
+                     (mapc (lambda (node)
+                             (traverse node (1+ depth)))
+                           (neighbors node))))))
+        (traverse start 0))
+      visited)))
 
 (let ((cache (make-hash-table :test #'equal)))
   (defun get-path (start end &optional retry)
