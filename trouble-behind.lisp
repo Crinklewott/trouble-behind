@@ -301,6 +301,8 @@ NPC walked from some location to their current location."
 
 (defgeneric npc-ai (npc)
   (:documentation "The AI that controls the passed in NPC each turn."))
+(defgeneric npc-alert (npc location)
+  (:documentation "How the AI reacts to being alerted of an event."))
 
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
@@ -320,12 +322,21 @@ in a while... Or if a path is set, to follow it."
 tasks."
   (mapc #'npc-ai *npcs*))
 
+(defun npc-alert-in-range (location distance)
+  "Alerts any NPCs within a certain distance of some location of an
+event happening"
+  (mapc (lambda (npc) (npc-alert npc location))
+        (get-npcs-within-range 'hallway distance)))
+
 (defun npc-goto (npc location)
   "Tells an NPC they should go to a certain location."
   (setf (npc-path npc) (get-path (npc-location npc) location)))
 
-(defun npc-alert (distance location))
   
+(defmethod npc-alert ((npc npc) location)
+  "Basic NPC alert AI... When alerted, the NPC goes to inestigate the
+node the event happened at."
+  (npc-goto npc location))
 
 ;; Advaced metaprogramming thingies
 (defmacro when-player (&rest arg-list)
@@ -379,7 +390,7 @@ Valid words are:
               (if (eval (fourth form))
                   (progn
                     (incf *trouble-points* (second form))
-                    (npc-alert (third form) *player-location*)
+                    (npc-alert-in-range *player-location* (third form))
                     (push input *events-complete*)
                     (when (sixth form)
 		      (mapc #'eval (sixth form)))
