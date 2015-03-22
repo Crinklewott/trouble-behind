@@ -202,70 +202,6 @@ passed-in location."
       `(you dont have that.)))
 
 
-;; Advaced metaprogramming thingies
-(defmacro when-player (&rest arg-list)
-  "Checks if the player meets certain conditions in plain english. For example:
-\(when-player has blanket)
-...is valid, and will check if the player has a blanket in their
-inventory...
-
-You can chain together statements with \"and\" as well, so the
-following works too:
-\(when-player has blanket and is in your-bedroom)
-
-Any words the macro doesn't understand are simply ignored.
-
-Valid words are:
-- in, at <place>
-- has, holds <item>
-- see, sees <thing>
-- already <special command>"
-  (labels ((parse (args acc)
-	     (let ((current (car args)))
-	       (when current
-		 (case current
-                   ((in at)
-                    (cons acc (cons `(eq ',(cadr args) *player-location*)
-                                    (parse (cddr args) acc))))
-                   ((has holds)
-                    (cons acc (cons `(member ',(cadr args) (inventory))
-                                    (parse (cddr args) acc))))
-                   ((already)
-                    (cons acc (cons `(special-command-run-p ',(cadr args))
-                                    (parse (cddr args) acc))))
-                   ((see sees)
-                    (cons acc (cons `(can-see ',(cadr args) *player-location*)
-                                    (parse (cddr args) acc))))
-                   (and (cdr (parse (cdr args) '())))
-                   (otherwise (parse (cdr args) '())))))))
-    (parse (remove-if #'fluff-word-p arg-list) 'and)))
-
-(defun npc-alert (distance location))
-
-(defun special-command-run-p (command)
-  "Checks if a special command has run successfully."
-  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
-
-(defun special-command (input)
-  "Runs a command configured in the map"
-  (let ((event (get-event (car input)))
-        (args (cdr input)))
-    (let ((form (assoc args event :test #'equal)))
-      (if form
-          (if (not (special-command-run-p input))
-              (if (eval (fourth form))
-                  (progn
-                    (incf *trouble-points* (second form))
-                    (npc-alert (third form) *player-location*)
-                    (push input *events-complete*)
-                    (when (sixth form)
-		      (mapc #'eval (sixth form)))
-                    (fifth form))
-                  '(you cannot do that.))
-              '(you already did that.))
-          '(huh?)))))
-
-
 ;; Map utility functions
 (defun new-location-description (description &optional place)
   "Sets a new description for the passed-in location"
@@ -279,51 +215,6 @@ Valid words are:
   "Connects two places with an item."
     (push (list direction1 place2 item) (get-edges place1))
     (push (list direction2 place1 item) (get-edges place2)))
-
-
-;; Game REPL functions
-(defun tb-eval (&rest input)
-  "Evaluates user input from (read) in a controlled manner and
-performs the respective game commands passed in."
-  (let* ((input (car input))
-	 (command (car input)))
-    (case command
-      ((inventory i items)
-       (or (inventory) '(nothing)))
-      ((look inspect describe l)
-       (if (cdr input)
-           (look-at (cadr input))
-           (look)))
-      ((get pickup)
-       (if (cdr input)
-           (pickup (cadr input))
-           '(pick up what?)))
-      ((drop leave)
-       (if (cdr input)
-           (drop (cadr input))
-           '(drop what?)))
-      ((walk go run)
-       (if (cdr input)
-           (walk (cadr input))
-           '(walk where?)))
-      ((n e s w ne nw se sw)
-       (tb-eval (case command
-                  (n '(north))
-                  (e '(east))
-                  (s '(south))
-                  (w '(west))
-                  (ne '(northeast))
-                  (nw '(northwest))
-                  (se '(southeast))
-                  (sw '(southwest)))))
-      (otherwise
-       (cond
-         ((member command
-                  (append '(north east south west northeast northwest
-                            southeast southwest)
-                          (mapcar #'car (get-edges *player-location*))))
-          (walk command))
-         (t (special-command input)))))))
 
 
 ;; AI functions!
@@ -388,6 +279,7 @@ from the staring node passed in."
 	     (nth (random (length nodes)) nodes))))
     (get-path (random-node) (random-node) t)))
 
+
 ;; NPC command and AI implementation details
 (defun display-walk (source npc)
   "Outputs what a player would see given their current location if an
@@ -432,16 +324,126 @@ tasks."
   "Tells an NPC they should go to a certain location."
   (setf (npc-path npc) (get-path (npc-location npc) location)))
 
+(defun npc-alert (distance location))
+  
+
+;; Advaced metaprogramming thingies
+(defmacro when-player (&rest arg-list)
+  "Checks if the player meets certain conditions in plain english. For example:
+\(when-player has blanket)
+...is valid, and will check if the player has a blanket in their
+inventory...
+
+You can chain together statements with \"and\" as well, so the
+following works too:
+\(when-player has blanket and is in your-bedroom)
+
+Any words the macro doesn't understand are simply ignored.
+
+Valid words are:
+- in, at <place>
+- has, holds <item>
+- see, sees <thing>
+- already <special command>"
+  (labels ((parse (args acc)
+	     (let ((current (car args)))
+	       (when current
+		 (case current
+                   ((in at)
+                    (cons acc (cons `(eq ',(cadr args) *player-location*)
+                                    (parse (cddr args) acc))))
+                   ((has holds)
+                    (cons acc (cons `(member ',(cadr args) (inventory))
+                                    (parse (cddr args) acc))))
+                   ((already)
+                    (cons acc (cons `(special-command-run-p ',(cadr args))
+                                    (parse (cddr args) acc))))
+                   ((see sees)
+                    (cons acc (cons `(can-see ',(cadr args) *player-location*)
+                                    (parse (cddr args) acc))))
+                   (and (cdr (parse (cdr args) '())))
+                   (otherwise (parse (cdr args) '())))))))
+    (parse (remove-if #'fluff-word-p arg-list) 'and)))
+
+(defun special-command-run-p (command)
+  "Checks if a special command has run successfully."
+  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
+
+(defun special-command (input)
+  "Runs a command configured in the map"
+  (let ((event (get-event (car input)))
+        (args (cdr input)))
+    (let ((form (assoc args event :test #'equal)))
+      (if form
+          (if (not (special-command-run-p input))
+              (if (eval (fourth form))
+                  (progn
+                    (incf *trouble-points* (second form))
+                    (npc-alert (third form) *player-location*)
+                    (push input *events-complete*)
+                    (when (sixth form)
+		      (mapc #'eval (sixth form)))
+                    (fifth form))
+                  '(you cannot do that.))
+              '(you already did that.))
+          '(huh?)))))
+
+
+;; Game REPL functions
+(defun game-eval (&rest input)
+  "Evaluates user input from (read) in a controlled manner and
+performs the respective game commands passed in."
+  (let* ((input (car input))
+	 (command (car input)))
+    (case command
+      ((inventory i items)
+       (or (inventory) '(nothing)))
+      ((look inspect describe l)
+       (if (cdr input)
+           (look-at (cadr input))
+           (look)))
+      ((get pickup)
+       (if (cdr input)
+           (pickup (cadr input))
+           '(pick up what?)))
+      ((drop leave)
+       (if (cdr input)
+           (drop (cadr input))
+           '(drop what?)))
+      ((walk go run)
+       (if (cdr input)
+           (walk (cadr input))
+           '(walk where?)))
+      ((n e s w ne nw se sw)
+       (game-eval (case command
+                  (n '(north))
+                  (e '(east))
+                  (s '(south))
+                  (w '(west))
+                  (ne '(northeast))
+                  (nw '(northwest))
+                  (se '(southeast))
+                  (sw '(southwest)))))
+      (otherwise
+       (cond
+         ((member command
+                  (append '(north east south west northeast northwest
+                            southeast southwest)
+                          (mapcar #'car (get-edges *player-location*))))
+          (walk command))
+         (t (special-command input)))))))
+
+
 ;; Main game loop
 (defun game-loop ()
-  "Loops through user input passing it to tb-eval and stylyzing the
+  "Loops through user input passing it to game-eval and stylyzing the
 output."
   (loop for input = '(look)
      then (read-from-string (concatenate 'string "(" (read-line) ")"))
      when (eq (car input) 'quit)
      return t
      do (progn
-	  (princ (stylize-list (tb-eval (remove-if #'fluff-word-p input))))
+	  (princ (stylize-list (game-eval (remove-if #'fluff-word-p input))))
           (fresh-line)
           (update-npcs)
 	  (fresh-line))))
