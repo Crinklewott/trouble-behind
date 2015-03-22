@@ -337,6 +337,15 @@ distance from a given source node."
          for distance being the hash-values of hash
          when (>= max-distance distance) collect (cons room distance))))
 
+  (defun get-npcs-within-range (node max-distance)
+    "Returns a list of NPCs within the specified distance of the
+passed in node."
+    (mapcan (lambda (node)
+              (mapcan (lambda (npc)
+                        (when (eq (car node) (npc-location npc))
+                          (list npc))) *npcs*))
+            (get-nodes-within-range node max-distance)))
+
   (defun make-distance-hash (start)
     "Creates a hash table that lists the shortest distance to each node
 from the staring node passed in."
