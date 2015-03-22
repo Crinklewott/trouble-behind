@@ -205,13 +205,13 @@ passed-in location."
 ;; Advaced metaprogramming thingies
 (defmacro when-player (&rest arg-list)
   "Checks if the player meets certain conditions in plain english. For example:
-(when-player has blanket)
+\(when-player has blanket)
 ...is valid, and will check if the player has a blanket in their
 inventory...
 
 You can chain together statements with \"and\" as well, so the
 following works too:
-(when-player has blanket and is in your-bedroom)
+\(when-player has blanket and is in your-bedroom)
 
 Any words the macro doesn't understand are simply ignored.
 
