@@ -214,7 +214,8 @@ passed-in location."
 (defun connect-places (place1 direction1 place2 direction2 item)
   "Connects two places with an item."
     (push (list direction1 place2 item) (get-edges place1))
-    (push (list direction2 place1 item) (get-edges place2)))
+    (push (list direction2 place1 item) (get-edges place2))
+    (clear-distance-hashes))
 
 
 ;; AI functions!
