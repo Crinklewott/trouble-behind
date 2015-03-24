@@ -202,22 +202,6 @@ passed-in location."
       `(you dont have that.)))
 
 
-;; Map utility functions
-(defun new-location-description (description &optional place)
-  "Sets a new description for the passed-in location"
-  (setf (car (get-node (or place *player-location*))) description))
-
-(defun item-is-now-at (item place)
-  "Moves an item to some place."
-  (push (cons item place) *item-locations*))
-
-(defun connect-places (place1 direction1 place2 direction2 item)
-  "Connects two places with an item."
-    (push (list direction1 place2 item) (get-edges place1))
-    (push (list direction2 place1 item) (get-edges place2))
-    (clear-distance-hashes))
-
-
 ;; AI functions!
 (let ((distance-hashes (make-hash-table)))
   (defun clear-distance-hashes ()
@@ -338,6 +322,21 @@ event happening"
   "Basic NPC alert AI... When alerted, the NPC goes to inestigate the
 node the event happened at."
   (npc-goto npc location))
+
+;; Map utility functions
+(defun new-location-description (description &optional place)
+  "Sets a new description for the passed-in location"
+  (setf (car (get-node (or place *player-location*))) description))
+
+(defun item-is-now-at (item place)
+  "Moves an item to some place."
+  (push (cons item place) *item-locations*))
+
+(defun connect-places (place1 direction1 place2 direction2 item)
+  "Connects two places with an item."
+    (push (list direction1 place2 item) (get-edges place1))
+    (push (list direction2 place1 item) (get-edges place2))
+    (clear-distance-hashes))
 
 ;; Advaced metaprogramming thingies
 (defmacro when-player (&rest arg-list)
