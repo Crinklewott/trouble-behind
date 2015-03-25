@@ -1,9 +1,30 @@
-;; Structs
-(defstruct npc
-  "An NPC is anything in the game world that isn't an object. Adding
-  an NPC to the *npcs* list below will make the NPC automagically
-  update accoroding to their AI implementation."
-  name location (path nil) (anger 0))
+;; Classes
+(defclass npc ()
+  ((name
+    :documentation "The name of the NPC"
+    :initarg :name
+    :accessor npc-name
+    :type string)
+   (location
+    :documentation "The NPC's current location"
+    :initarg :location
+    :accessor npc-location
+    :type symbol)
+   (path
+    :documentation "The path that the NPC is attempting to walk."
+    :initarg :path
+    :initform '()
+    :accessor npc-path
+    :type list)
+   (anger
+    :documentation "How mad the NPC currently is."
+    :initarg :anger
+    :initform 0
+    :accessor npc-anger
+    :type number))
+  (:documentation "An NPC is anything in the game world that isn't an
+  object. Adding an NPC to the *npcs* list below will make the NPC
+  automagically update according to their AI implementation."))
 
 ;; State
 (defparameter *map*
@@ -29,9 +50,10 @@ trouble the player can be in.")
   "A list of events that have been successfully completed.")
 
 (defparameter *npcs*
-  (mapcar (lambda (npc) (make-npc :name (car npc) :location (cadr npc)))
+  (mapcar (lambda (npc)
+            (make-instance 'npc :name (car npc) :location (cadr npc)))
 	  (cadr (assoc 'npcs *map*)))
-  "A list of NPC structs")
+  "A list of NPC objects")
 
 ;; Dynamically loads things from the map
 (defmacro defmap (entry getter-name fetcher-name)
