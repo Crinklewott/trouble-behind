@@ -10,6 +10,13 @@
     :initarg :location
     :accessor npc-location
     :type symbol)
+   (holding
+    :documentation "What the NPC is currently holding... Can be up to
+    three things in a list."
+    :initarg :holding
+    :initform '()
+    :accessor npc-holding
+    :type list)
    (path
     :documentation "The path that the NPC is attempting to walk."
     :initarg :path
@@ -466,6 +473,16 @@ performs the respective game commands passed in."
           (walk command))
          (t (special-command input)))))))
 
+(defun handle-player (input)
+  "Handles the actions a player can take in their given situation."
+  (flet ((holding-player (npc)
+           (member 'player (npc-holding npc))))
+    (let ((holding-npc (car (remove-if-not #'holding-player *npcs*))))
+      (if (null holding-npc)
+          (princ-stylized-list (game-eval (remove-if #'fluff-word-p input)))
+          (princ-stylized-list
+           `(you "can't" move! ,(npc-name holding-npc) is holding onto
+                 you tightly!))))))
 
 ;; Main game loop
 (defun game-loop ()
@@ -476,7 +493,7 @@ output."
      when (eq (car input) 'quit)
      return t
      do (progn
-	  (princ (stylize-list (game-eval (remove-if #'fluff-word-p input))))
+          (handle-player input)
           (fresh-line)
           (update-npcs)
 	  (fresh-line))))
