@@ -480,9 +480,17 @@ performs the respective game commands passed in."
     (let ((holding-npc (car (remove-if-not #'holding-player *npcs*))))
       (if (null holding-npc)
           (princ-stylized-list (game-eval (remove-if #'fluff-word-p input)))
-          (princ-stylized-list
-           `(you "can't" move! ,(npc-name holding-npc) is holding onto
-                 you tightly!))))))
+          (if (eq (car input) 'struggle)
+              (if (zerop (random 10))
+                  (progn
+                    (setf (npc-holding holding-npc)
+                          (remove 'player (npc-holding holding-npc)))
+                    (princ-stylized-list '(you get away!)))
+                  (princ-stylized-list
+                   '(you struggle... but it is fruitless.)))
+              (princ-stylized-list
+               `(you "can't" move! ,(npc-name holding-npc) is holding onto
+                     you tightly! try to struggle to get away!)))))))
 
 ;; Main game loop
 (defun game-loop ()
