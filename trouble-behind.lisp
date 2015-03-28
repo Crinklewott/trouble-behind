@@ -326,6 +326,12 @@ NPC walked from some location to their current location."
 (defgeneric npc-alert (npc location)
   (:documentation "How the AI reacts to being alerted of an event."))
 
+(defun npc-follow-path (npc)
+  "Gets an NPC to continue following the path it has."
+  (let ((source (npc-location npc)))
+    (setf (npc-location npc) (pop (npc-path npc)))
+    (display-walk source npc)))
+
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
 in a while... Or if a path is set, to follow it. Or if the NPC has
@@ -335,15 +341,23 @@ some motive, to call the appropriate method."
         (npc-follow-motive npc motive)
         (let ((source (npc-location npc)))
           (if (npc-path npc)
-              (setf (npc-location npc) (pop (npc-path npc)))
+              (npc-follow-path npc)
               (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
                 (when (and (zerop (random 3))
                            (not (zerop (length neighbors))))
                   (setf (npc-location npc)
-                        (nth (random (length neighbors)) neighbors)))))
-          (display-walk source npc)))))
+                        (nth (random (length neighbors)) neighbors)))
+                (display-walk source npc)))))))
 
-
+(defmethod npc-follow-motive (npc (motive (eql 'find-player)))
+  "The NPC motive code for finding the player. (Currently in a dumb
+and psychic way)"
+  (if (npc-path npc)
+      (npc-follow-path npc)
+      (setf (npc-path npc) (get-path (npc-location npc) *player-location*)))
+  (when (eq (npc-location npc) *player-location*)
+    (princ-stylized-list '(there you are!))
+    (setf (npc-motive npc) nil)))
 
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
@@ -359,7 +373,6 @@ event happening"
 (defun npc-goto (npc location)
   "Tells an NPC they should go to a certain location."
   (setf (npc-path npc) (get-path (npc-location npc) location)))
-
 
 (defmethod npc-alert ((npc npc) location)
   "Basic NPC alert AI... When alerted, the NPC goes to inestigate the
