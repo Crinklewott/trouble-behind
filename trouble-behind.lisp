@@ -28,7 +28,13 @@
     :initarg :anger
     :initform 0
     :accessor npc-anger
-    :type number))
+    :type number)
+   (motive
+    :documentation "The current motivation of the NPC."
+    :initarg :motive
+    :initform nil
+    :accessor npc-motive
+    :type symbol))
   (:documentation "An NPC is anything in the game world that isn't an
   object. Adding an NPC to the *npcs* list below will make the NPC
   automagically update according to their AI implementation."))
@@ -311,26 +317,34 @@ NPC walked from some location to their current location."
 	    (let ((direction (get-direction destination source)))
 	      (princ-stylized-list
 	       `(,(npc-name npc) enters from the ,direction))))))))
-      
+
 
 (defgeneric npc-ai (npc)
   (:documentation "The AI that controls the passed in NPC each turn."))
+(defgeneric npc-follow-motive (npc motive)
+  (:documentation "Determines what an AI will do based on its motive."))
 (defgeneric npc-alert (npc location)
   (:documentation "How the AI reacts to being alerted of an event."))
 
 (defmethod npc-ai ((npc npc))
   "Basic NPC AI... Randomly move from one room to another every once
-in a while... Or if a path is set, to follow it."
-  (let ((source (npc-location npc)))
-    (if (npc-path npc)
-	(setf (npc-location npc) (pop (npc-path npc)))
-	(let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
-	  (when (and (zerop (random 3))
-		     (not (zerop (length neighbors))))
-	    (setf (npc-location npc)
-		  (nth (random (length neighbors)) neighbors)))))
-    (display-walk source npc)))
- 
+in a while... Or if a path is set, to follow it. Or if the NPC has
+some motive, to call the appropriate method."
+  (let ((motive (npc-motive npc)))
+    (if motive
+        (npc-follow-motive npc motive)
+        (let ((source (npc-location npc)))
+          (if (npc-path npc)
+              (setf (npc-location npc) (pop (npc-path npc)))
+              (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
+                (when (and (zerop (random 3))
+                           (not (zerop (length neighbors))))
+                  (setf (npc-location npc)
+                        (nth (random (length neighbors)) neighbors)))))
+          (display-walk source npc)))))
+
+
+
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
@@ -346,7 +360,7 @@ event happening"
   "Tells an NPC they should go to a certain location."
   (setf (npc-path npc) (get-path (npc-location npc) location)))
 
-  
+
 (defmethod npc-alert ((npc npc) location)
   "Basic NPC alert AI... When alerted, the NPC goes to inestigate the
 node the event happened at."
