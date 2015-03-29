@@ -56,8 +56,8 @@
          feel like you probably "shouldn't" be here.))))
  
  (edges
-  ((your-bedroom (west hallway door))
-   (hallway (east your-bedroom door)
+  ((your-bedroom (east hallway door))
+   (hallway (west your-bedroom door)
 	    (south dining-room exit))
    (dining-room (north hallway exit)
                 (northeast kitchen door)
