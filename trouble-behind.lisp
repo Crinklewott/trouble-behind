@@ -333,21 +333,22 @@ NPC walked from some location to their current location."
     (display-walk source npc)))
 
 (defmethod npc-ai ((npc npc))
-  "Basic NPC AI... Randomly move from one room to another every once
-in a while... Or if a path is set, to follow it. Or if the NPC has
-some motive, to call the appropriate method."
-  (let ((motive (npc-motive npc)))
-    (if motive
-        (npc-follow-motive npc motive)
-        (let ((source (npc-location npc)))
-          (if (npc-path npc)
-              (npc-follow-path npc)
-              (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
-                (when (and (zerop (random 3))
-                           (not (zerop (length neighbors))))
-                  (setf (npc-location npc)
-                        (nth (random (length neighbors)) neighbors)))
-                (display-walk source npc)))))))
+  "Basic NPC AI... Follow the AI motivation each turn."
+  (npc-follow-motive npc (npc-motive npc)))
+
+(defmethod npc-follow-motive (npc motive)
+  "The basic NPC motive, used when no matching AI is found for the
+current motive. Randomly move from one room to another every once in a
+while... Or if a path is set, follow it."
+  (let ((source (npc-location npc)))
+    (if (npc-path npc)
+        (npc-follow-path npc)
+        (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
+          (when (and (zerop (random 3))
+                     (not (zerop (length neighbors))))
+            (setf (npc-location npc)
+                  (nth (random (length neighbors)) neighbors)))
+          (display-walk source npc)))))
 
 (defmethod npc-follow-motive (npc (motive (eql 'find-player)))
   "The NPC motive code for finding the player. (Currently in a dumb
