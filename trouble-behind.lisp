@@ -319,10 +319,9 @@ NPC walked from some location to their current location."
 	       `(,(npc-name npc) enters from the ,direction))))))))
 
 
-(defgeneric npc-ai (npc)
-  (:documentation "The AI that controls the passed in NPC each turn."))
-(defgeneric npc-follow-motive (npc motive)
-  (:documentation "Determines what an AI will do based on its motive."))
+(defgeneric npc-ai (npc motive)
+  (:documentation "The AI that controls the passed in NPC each
+  turn; Whis is done will do is based on its motive."))
 (defgeneric npc-alert (npc location)
   (:documentation "How the AI reacts to being alerted of an event."))
 
@@ -332,14 +331,11 @@ NPC walked from some location to their current location."
     (setf (npc-location npc) (pop (npc-path npc)))
     (display-walk source npc)))
 
-(defmethod npc-ai ((npc npc))
-  "Basic NPC AI... Follow the AI motivation each turn."
-  (npc-follow-motive npc (npc-motive npc)))
-
-(defmethod npc-follow-motive (npc motive)
-  "The basic NPC motive, used when no matching AI is found for the
-current motive. Randomly move from one room to another every once in a
-while... Or if a path is set, follow it."
+(defmethod npc-ai (npc motive)
+  "The basic NPC AI, used when no matching AI is found for the
+current motive:
+This AI will make the NPC randomly move from one room to another every
+once in a while... Or if a path is set, follow it."
   (let ((source (npc-location npc)))
     (if (npc-path npc)
         (npc-follow-path npc)
@@ -350,7 +346,7 @@ while... Or if a path is set, follow it."
                   (nth (random (length neighbors)) neighbors)))
           (display-walk source npc)))))
 
-(defmethod npc-follow-motive (npc (motive (eql 'find-player)))
+(defmethod npc-ai (npc (motive (eql 'find-player)))
   "The NPC motive code for finding the player. (Currently in a dumb
 and psychic way)"
   (if (npc-path npc)
@@ -363,7 +359,9 @@ and psychic way)"
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
-  (mapc #'npc-ai *npcs*))
+  (flet ((npc-ai-action (npc)
+           (npc-ai npc (npc-motive npc))))
+    (mapc #'npc-ai-action *npcs*)))
 
 (defun npc-alert-in-range (location distance)
   "Alerts any NPCs within a certain distance of some location of an
