@@ -30,11 +30,11 @@
     :accessor npc-anger
     :type number)
    (motive
-    :documentation "The current motivation of the NPC."
+    :documentation "The current motivations of the NPC."
     :initarg :motive
     :initform nil
     :accessor npc-motive
-    :type symbol))
+    :type list))
   (:documentation "An NPC is anything in the game world that isn't an
   object. Adding an NPC to the *npcs* list below will make the NPC
   automagically update according to their AI implementation."))
@@ -353,14 +353,13 @@ and psychic way)"
       (npc-follow-path npc)
       (setf (npc-path npc) (get-path (npc-location npc) *player-location*)))
   (when (eq (npc-location npc) *player-location*)
-    (princ-stylized-list '(there you are!))
-    (setf (npc-motive npc) nil)))
+    (pop (npc-motive npc))))
 
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
   (flet ((npc-ai-action (npc)
-           (npc-ai npc (npc-motive npc))))
+           (npc-ai npc (car (npc-motive npc)))))
     (mapc #'npc-ai-action *npcs*)))
 
 (defun npc-alert-in-range (location distance)
