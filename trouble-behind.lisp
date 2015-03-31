@@ -355,6 +355,14 @@ and psychic way)"
   (when (eq (npc-location npc) *player-location*)
     (pop (npc-motive npc))))
 
+(defmethod npc-ai (npc (motive (eql 'grab-player)))
+  "The NPC motive code for when they wish to grab the player."
+  (if (eq (npc-location npc) *player-location*)
+      (unless (or (zerop (random 5)) (member 'player (npc-holding npc)))
+        (push 'player (npc-holding npc))
+        (princ-stylized-list `(,(npc-name npc) grabs ahold of you!)))
+      (push 'find-player (npc-motive npc))))
+
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
