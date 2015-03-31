@@ -10,12 +10,11 @@
     :initarg :location
     :accessor npc-location
     :type symbol)
-   (holding
-    :documentation "What the NPC is currently holding... Can be up to
-    three things in a list."
-    :initarg :holding
+   (inventory
+    :documentation "What the NPC is currently holding..."
+    :initarg :inventory
     :initform '()
-    :accessor npc-holding
+    :accessor npc-inventory
     :type list)
    (path
     :documentation "The path that the NPC is attempting to walk."
@@ -33,7 +32,7 @@
     :documentation "The current motivations of the NPC."
     :initarg :motive
     :initform nil
-    :accessor npc-motive
+    :accessor npc-motives
     :type list))
   (:documentation "An NPC is anything in the game world that isn't an
   object. Adding an NPC to the *npcs* list below will make the NPC
@@ -353,21 +352,21 @@ and psychic way)"
       (npc-follow-path npc)
       (setf (npc-path npc) (get-path (npc-location npc) *player-location*)))
   (when (eq (npc-location npc) *player-location*)
-    (pop (npc-motive npc))))
+    (pop (npc-motives npc))))
 
 (defmethod npc-ai (npc (motive (eql 'grab-player)))
   "The NPC motive code for when they wish to grab the player."
   (if (eq (npc-location npc) *player-location*)
-      (unless (or (zerop (random 5)) (member 'player (npc-holding npc)))
-        (push 'player (npc-holding npc))
+      (unless (or (zerop (random 5)) (member 'player (npc-inventory npc)))
+        (push 'player (npc-inventory npc))
         (princ-stylized-list `(,(npc-name npc) grabs ahold of you!)))
-      (push 'find-player (npc-motive npc))))
+      (push 'find-player (npc-motives npc))))
 
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
   (flet ((npc-ai-action (npc)
-           (npc-ai npc (car (npc-motive npc)))))
+           (npc-ai npc (car (npc-motives npc)))))
     (mapc #'npc-ai-action *npcs*)))
 
 (defun npc-alert-in-range (location distance)
@@ -509,15 +508,15 @@ performs the respective game commands passed in."
 (defun handle-player (input)
   "Handles the actions a player can take in their given situation."
   (flet ((holding-player (npc)
-           (member 'player (npc-holding npc))))
+           (member 'player (npc-inventory npc))))
     (let ((holding-npc (car (remove-if-not #'holding-player *npcs*))))
       (if (null holding-npc)
           (princ-stylized-list (game-eval (remove-if #'fluff-word-p input)))
           (if (eq (car input) 'struggle)
               (if (zerop (random 10))
                   (progn
-                    (setf (npc-holding holding-npc)
-                          (remove 'player (npc-holding holding-npc)))
+                    (setf (npc-inventory holding-npc)
+                          (remove 'player (npc-inventory holding-npc)))
                     (princ-stylized-list '(you get away!)))
                   (princ-stylized-list
                    '(you struggle... but it is fruitless.)))
