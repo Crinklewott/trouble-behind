@@ -374,7 +374,7 @@ event happening"
   (setf (npc-path npc) (get-path (npc-location npc) location)))
 
 (defmethod npc-alert ((npc npc) location)
-  "Basic NPC alert AI... When alerted, the NPC goes to inestigate the
+  "Basic NPC alert AI... When alerted, the NPC goes to investigate the
 node the event happened at."
   (npc-goto npc location))
 
