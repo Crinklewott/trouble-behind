@@ -157,9 +157,9 @@ otherwise."
 
 (defun get-events-complete-at (location)
   "Gets all of the events the player has completed at a given location."
-  (remove-if-not
-   (lambda (event) (eq (cadr event) location))
-   *events-complete*))
+  (mapcar #'car (remove-if-not
+                 (lambda (event) (eq (cadr event) location))
+                 *events-complete*)))
 
 
 ;; Game description functions
