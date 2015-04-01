@@ -33,6 +33,12 @@
     :initarg :motive
     :initform nil
     :accessor npc-motives
+    :type list)
+   (seen
+    :documentation "A list of noteworthy things this NPC has seen."
+    :initarg :seen
+    :initform nil
+    :accessor npc-seen
     :type list))
   (:documentation "An NPC is anything in the game world that isn't an
   object. Adding an NPC to the *npcs* list below will make the NPC
@@ -154,6 +160,10 @@ otherwise."
   (let ((loc (item-location item)))
     (or (eq location loc)
 	(eq 'inventory loc))))
+
+(defun get-event-details (event)
+  "Fetches the details of an event action list."
+  (assoc (cdr event) (get-event (car event)) :test #'equal))
 
 (defun get-events-complete-at (location)
   "Gets all of the events the player has completed at a given location."
@@ -367,6 +377,17 @@ and psychic way)"
         (push 'player (npc-inventory npc))
         (princ-stylized-list `(,(npc-name npc) grabs ahold of you!)))
       (push 'find-player (npc-motives npc))))
+
+(defmethod npc-ai (npc (motive (eql 'investigate)))
+  "Investigates the current location, or the location at the end of
+their path."
+  (flet ((investigate-event (event)
+           (unless (find event (npc-seen npc) :test #'equal)
+             (push event (npc-seen npc))
+             (incf (npc-anger npc) (cadr (get-event-details event))))))
+  (when (npc-path npc)
+    (npc-follow-path npc))
+  (mapc #'investigate-event (get-events-complete-at (npc-location npc)))))
 
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
