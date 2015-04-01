@@ -439,7 +439,7 @@ Valid words are:
 
 (defun special-command-run-p (command)
   "Checks if a special command has run successfully."
-  (find (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
+  (assoc (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
 
 (defun special-command (input)
   "Runs a command configured in the map"
@@ -452,7 +452,7 @@ Valid words are:
                   (progn
                     (incf *trouble-points* (second form))
                     (npc-alert-in-range *player-location* (third form))
-                    (push input *events-complete*)
+                    (push (list input *player-location*) *events-complete*)
                     (when (sixth form)
 		      (mapc #'eval (sixth form)))
                     (fifth form))
