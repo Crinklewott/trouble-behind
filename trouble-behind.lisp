@@ -288,7 +288,8 @@ passed in node."
   (mapcan (lambda (node)
             (mapcan (lambda (npc)
                       (when (eq (car node) (npc-location npc))
-                        (list npc))) *npcs*))
+                        (list npc)))
+                    *npcs*))
           (get-nodes-within-range node max-distance)))
 
 (let ((cache (make-hash-table :test #'equal)))
@@ -328,11 +329,12 @@ NPC walked from some location to their current location."
 	    (let ((direction (get-direction source destination)))
 	      (princ-stylized-list
 	       `(you see ,(npc-name npc) walk to the ,direction))))
-	  (when (eq *player-location* destination)
-	    (let ((direction (get-direction destination source)))
-	      (princ-stylized-list
-	       `(,(npc-name npc) enters from the ,direction))))))))
-
+          (progn
+            (npc-alert-players-in-range destination)
+            (when (eq *player-location* destination)
+              (let ((direction (get-direction destination source)))
+                (princ-stylized-list
+                 `(,(npc-name npc) enters from the ,direction)))))))))
 
 (defgeneric npc-ai (npc motive)
   (:documentation "The AI that controls the passed in NPC each
@@ -401,6 +403,19 @@ tasks."
 event happening"
   (mapc (lambda (npc) (npc-alert npc location))
         (get-npcs-within-range 'hallway distance)))
+
+(defun npc-alert-players-in-range (location)
+  "Alerts the players of the sound of NPCs approaching them from up to
+  3 nodes away."
+  (mapc (lambda (node)
+          (when (eq (car node) *player-location*)
+            (princ-stylized-list
+             (case (cdr node)
+               (1 '(you hear footsteps just outside the room.))
+               (2 '(you hear footsteps.))
+               (3 '(you hear the faint sound of footsteps.))))))
+        (remove-if (lambda (node) (zerop (cdr node)))
+                   (get-nodes-within-range location 3))))
 
 (defun npc-goto (npc location)
   "Tells an NPC they should go to a certain location."
