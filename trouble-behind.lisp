@@ -317,6 +317,19 @@ passed in node."
 
 
 ;; NPC command and AI implementation details
+(defun npc-alert-players-in-range (location)
+  "Alerts the players of the sound of NPCs approaching them from up to
+  3 nodes away."
+  (mapc (lambda (node)
+          (when (eq (car node) *player-location*)
+            (princ-stylized-list
+             (case (cdr node)
+               (1 '(you hear footsteps just outside the room.))
+               (2 '(you hear footsteps.))
+               (3 '(you hear the faint sound of footsteps.))))))
+        (remove-if (lambda (node) (zerop (cdr node)))
+                   (get-nodes-within-range location 3))))
+
 (defun display-walk (source npc)
   "Outputs what a player would see given their current location if an
 NPC walked from some location to their current location."
@@ -403,19 +416,6 @@ tasks."
 event happening"
   (mapc (lambda (npc) (npc-alert npc location))
         (get-npcs-within-range 'hallway distance)))
-
-(defun npc-alert-players-in-range (location)
-  "Alerts the players of the sound of NPCs approaching them from up to
-  3 nodes away."
-  (mapc (lambda (node)
-          (when (eq (car node) *player-location*)
-            (princ-stylized-list
-             (case (cdr node)
-               (1 '(you hear footsteps just outside the room.))
-               (2 '(you hear footsteps.))
-               (3 '(you hear the faint sound of footsteps.))))))
-        (remove-if (lambda (node) (zerop (cdr node)))
-                   (get-nodes-within-range location 3))))
 
 (defun npc-goto (npc location)
   "Tells an NPC they should go to a certain location."
