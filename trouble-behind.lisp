@@ -1,22 +1,34 @@
+;; Loading external information first
+(defparameter *map*
+  (with-open-file (nodes "map.lmap" :direction :input)
+    (read nodes))
+  "The map that contains all of the location nodes as well as the
+  edges that connect them.")
+
 ;; Classes
-(defclass npc ()
+(defclass actor ()
   ((name
-    :documentation "The name of the NPC"
+    :documentation "The name of the actor"
     :initarg :name
-    :accessor npc-name
+    :accessor actor-name
     :type string)
    (location
-    :documentation "The NPC's current location"
+    :documentation "The actor's current location"
     :initarg :location
-    :accessor npc-location
+    :accessor actor-location
     :type symbol)
    (inventory
-    :documentation "What the NPC is currently holding..."
+    :documentation "The name of the symbol that specifies this actor's
+    inventory location."
     :initarg :inventory
-    :initform '()
-    :accessor npc-inventory
-    :type list)
-   (path
+    :initform (gensym)
+    :reader actor-inventory
+    :type symbol))
+  (:documentation "An actor is anything in the game world that isn't
+  an object. This includes the player and NPCs."))
+
+(defclass npc (actor)
+  ((path
     :documentation "The path that the NPC is attempting to walk."
     :initarg :path
     :initform '()
@@ -40,29 +52,31 @@
     :initform nil
     :accessor npc-seen
     :type list))
-  (:documentation "An NPC is anything in the game world that isn't an
-  object. Adding an NPC to the *npcs* list below will make the NPC
-  automagically update according to their AI implementation."))
+  (:documentation "An NPC is a type of actor that has AI driving
+  it. Each active NPC shoukd be added to the *npcs* list below when
+  deemed to become \"active\", as that will make the actor
+  automagically update according to their AI implementation"))
+
+(defclass player (actor)
+  ((trouble-points
+    :documentation "How much trouble the player has caused... Also
+    doubles as a score."
+    :initarg :trouble-points
+    :initform 0
+    :accessor player-trouble-points
+    :type number))
+  (:documentation "The player class is a type of actor that is
+  controlled by a human."))
 
 ;; State
-(defparameter *map*
-  (with-open-file (nodes "map.lmap" :direction :input)
-    (read nodes))
-  "The map that contains all of the location nodes as well as the
-  edges that connect them.")
-
-(defparameter *player-location*
-  (cadr (assoc 'player-location *map*))
-  "The current location of the player")
-
-(defparameter *trouble-points* 0
-  "The score the player has... Also additively measures how much
-trouble the player can be in.")
-
 (defparameter *item-locations*
   (mapcar (lambda (x) (cons (car x) (caadr x)))
 	  (cadr (assoc 'item-details *map*)))
   "An alist containing the locations of items")
+
+(defparameter *player*
+  (make-instance 'player :location (cadr (assoc 'player-location *map*)))
+  "The player.")
 
 (defparameter *events-complete* '()
   "A list of events that have been successfully completed.")
@@ -200,29 +214,29 @@ otherwise."
 passed-in location."
   (mapcan
    (lambda (npc)
-     (list (npc-name npc) 'is 'in 'the 'room 'with 'you.))
-   (remove-if-not (lambda (npc) (eq (npc-location npc) location)) *npcs*)))
+     (list (actor-name npc) 'is 'in 'the 'room 'with 'you.))
+   (remove-if-not (lambda (npc) (eq (actor-location npc) location)) *npcs*)))
 
 ;; Player location-oriented functions
 (defun look ()
   "Outputs what the player sees around them."
   (append
-   (car (get-node *player-location*))
-   (describe-edges (get-edges *player-location*))
-   (describe-items-at-location (get-item-details) *player-location*)
-   (describe-npcs-at-location *player-location*)))
+   (car (get-node (actor-location *player*)))
+   (describe-edges (get-edges (actor-location *player*)))
+   (describe-items-at-location (get-item-details) (actor-location *player*))
+   (describe-npcs-at-location (actor-location *player*))))
 
 (defun look-at (item)
   "Gets the player to look at an item if they can see it."
-  (if (can-see item *player-location*)
+  (if (can-see item (actor-location *player*))
       (car (get-item item))
       `(you cannot see any ,item around here.)))
 
 (defun walk (direction)
   "Makes the player walk a specific direction if possible."
-  (let ((edge (assoc direction (get-edges *player-location*))))
+  (let ((edge (assoc direction (get-edges (actor-location *player*)))))
     (if edge
-	(progn (setf *player-location* (cadr edge))
+	(progn (setf (actor-location *player*) (cadr edge))
 	       (look))
 	`(i cannot see anywhere ,direction of here.))))
 
@@ -234,7 +248,7 @@ passed-in location."
 
 (defun pickup (item)
   "Lets the player pick up an item and put it in their inventory."
-  (if (can-see item *player-location*)
+  (if (can-see item (actor-location *player*))
       (if (member item (inventory))
 	  '(you already have that.)
 	  (let ((excuse (cadr (get-item item))))
@@ -247,7 +261,7 @@ passed-in location."
 (defun drop (item)
   "Lets the player drop an item at their current location"
   (if (member item (inventory))
-      (progn (push (cons item *player-location*) *item-locations*)
+      (progn (push (cons item (actor-location *player*)) *item-locations*)
 	     `(you drop the ,item on the floor.))
       `(you dont have that.)))
 
@@ -287,7 +301,7 @@ distance from a given source node."
 passed in node."
   (mapcan (lambda (node)
             (mapcan (lambda (npc)
-                      (when (eq (car node) (npc-location npc))
+                      (when (eq (car node) (actor-location npc))
                         (list npc)))
                     *npcs*))
           (get-nodes-within-range node max-distance)))
@@ -321,7 +335,7 @@ passed in node."
   "Alerts the players of the sound of NPCs approaching them from up to
   3 nodes away."
   (mapc (lambda (node)
-          (when (eq (car node) *player-location*)
+          (when (eq (car node) (actor-location *player*))
             (princ-stylized-list
              (case (cdr node)
                (1 '(you hear footsteps just outside the room.))
@@ -336,18 +350,18 @@ NPC walked from some location to their current location."
   (flet ((get-direction (source destination)
 	   (caar (remove-if-not (lambda (x) (eq destination (cadr x)))
 				(get-edges source)))))
-    (let ((destination (npc-location npc)))
-      (if (eq *player-location* source)
-	  (unless (eq *player-location* destination)
+    (let ((destination (actor-location npc)))
+      (if (eq (actor-location *player*) source)
+	  (unless (eq (actor-location *player*) destination)
 	    (let ((direction (get-direction source destination)))
 	      (princ-stylized-list
-	       `(you see ,(npc-name npc) walk to the ,direction))))
+	       `(you see ,(actor-name npc) walk to the ,direction))))
           (progn
             (npc-alert-players-in-range destination)
-            (when (eq *player-location* destination)
+            (when (eq (actor-location *player*) destination)
               (let ((direction (get-direction destination source)))
                 (princ-stylized-list
-                 `(,(npc-name npc) enters from the ,direction)))))))))
+                 `(,(actor-name npc) enters from the ,direction)))))))))
 
 (defgeneric npc-ai (npc motive)
   (:documentation "The AI that controls the passed in NPC each
@@ -357,8 +371,8 @@ NPC walked from some location to their current location."
 
 (defun npc-follow-path (npc)
   "Gets an NPC to continue following the path it has."
-  (let ((source (npc-location npc)))
-    (setf (npc-location npc) (pop (npc-path npc)))
+  (let ((source (actor-location npc)))
+    (setf (actor-location npc) (pop (npc-path npc)))
     (display-walk source npc)))
 
 (defmethod npc-ai (npc motive)
@@ -366,13 +380,13 @@ NPC walked from some location to their current location."
 current motive:
 This AI will make the NPC randomly move from one room to another every
 once in a while... Or if a path is set, follow it."
-  (let ((source (npc-location npc)))
+  (let ((source (actor-location npc)))
     (if (npc-path npc)
         (npc-follow-path npc)
-        (let ((neighbors (mapcar #'cadr (get-edges (npc-location npc)))))
+        (let ((neighbors (mapcar #'cadr (get-edges (actor-location npc)))))
           (when (and (zerop (random 3))
                      (not (zerop (length neighbors))))
-            (setf (npc-location npc)
+            (setf (actor-location npc)
                   (nth (random (length neighbors)) neighbors)))
           (display-walk source npc)))))
 
@@ -381,16 +395,19 @@ once in a while... Or if a path is set, follow it."
 and psychic way)"
   (if (npc-path npc)
       (npc-follow-path npc)
-      (setf (npc-path npc) (get-path (npc-location npc) *player-location*)))
-  (when (eq (npc-location npc) *player-location*)
+      (setf (npc-path npc)
+            (get-path (actor-location npc) (actor-location *player*))))
+  (when (eq (actor-location npc) (actor-location *player*))
     (pop (npc-motives npc))))
 
 (defmethod npc-ai (npc (motive (eql 'grab-player)))
   "The NPC motive code for when they wish to grab the player."
-  (if (eq (npc-location npc) *player-location*)
-      (unless (or (zerop (random 5)) (member 'player (npc-inventory npc)))
-        (push 'player (npc-inventory npc))
-        (princ-stylized-list `(,(npc-name npc) grabs ahold of you!)))
+  (if (eq (actor-location npc) (actor-location *player*))
+      (unless (or (zerop (random 5))
+                  (eq (item-location 'player)
+                      (actor-inventory npc)))
+        (push (cons 'player (actor-inventory npc)) *item-locations*)
+        (princ-stylized-list `(,(actor-name npc) grabs ahold of you!)))
       (push 'find-player (npc-motives npc))))
 
 (defmethod npc-ai (npc (motive (eql 'investigate)))
@@ -402,7 +419,7 @@ their path."
              (incf (npc-anger npc) (cadr (get-event-details event))))))
   (when (npc-path npc)
     (npc-follow-path npc))
-  (mapc #'investigate-event (get-events-complete-at (npc-location npc)))))
+  (mapc #'investigate-event (get-events-complete-at (actor-location npc)))))
 
 (defmethod npc-ai (npc (motive (eql 'search-for-player)))
   "The NPC motive for looking for the player if they think they are nearby.")
@@ -422,7 +439,7 @@ event happening"
 
 (defun npc-goto (npc location)
   "Tells an NPC they should go to a certain location."
-  (setf (npc-path npc) (get-path (npc-location npc) location)))
+  (setf (npc-path npc) (get-path (actor-location npc) location)))
 
 (defmethod npc-alert ((npc npc) location)
   "Basic NPC alert AI... When alerted, the NPC goes to investigate the
@@ -432,7 +449,7 @@ node the event happened at."
 ;; Map utility functions
 (defun new-location-description (description &optional place)
   "Sets a new description for the passed-in location"
-  (setf (car (get-node (or place *player-location*))) description))
+  (setf (car (get-node (or place (actor-location *player*)))) description))
 
 (defun item-is-now-at (item place)
   "Moves an item to some place."
@@ -467,7 +484,8 @@ Valid words are:
 	       (when current
 		 (case current
                    ((in at)
-                    (cons acc (cons `(eq ',(cadr args) *player-location*)
+                    (cons acc (cons `(eq ',(cadr args)
+                                         (actor-location *player*))
                                     (parse (cddr args) acc))))
                    ((has holds)
                     (cons acc (cons `(member ',(cadr args) (inventory))
@@ -476,7 +494,8 @@ Valid words are:
                     (cons acc (cons `(special-command-run-p ',(cadr args))
                                     (parse (cddr args) acc))))
                    ((see sees)
-                    (cons acc (cons `(can-see ',(cadr args) *player-location*)
+                    (cons acc (cons `(can-see ',(cadr args)
+                                              (actor-location *player*))
                                     (parse (cddr args) acc))))
                    (and (cdr (parse (cdr args) '())))
                    (otherwise (parse (cdr args) '())))))))
@@ -495,9 +514,10 @@ Valid words are:
           (if (not (special-command-run-p input))
               (if (eval (fourth form))
                   (progn
-                    (incf *trouble-points* (second form))
-                    (npc-alert-in-range *player-location* (third form))
-                    (push (list input *player-location*) *events-complete*)
+                    (incf (player-trouble-points *player*) (second form))
+                    (npc-alert-in-range (actor-location *player*) (third form))
+                    (push (list input (actor-location *player*))
+                          *events-complete*)
                     (when (sixth form)
 		      (mapc #'eval (sixth form)))
                     (fifth form))
@@ -546,27 +566,27 @@ performs the respective game commands passed in."
          ((member command
                   (append '(north east south west northeast northwest
                             southeast southwest)
-                          (mapcar #'car (get-edges *player-location*))))
+                          (mapcar #'car
+                                  (get-edges (actor-location *player*)))))
           (walk command))
          (t (special-command input)))))))
 
 (defun handle-player (input)
   "Handles the actions a player can take in their given situation."
-  (flet ((holding-player (npc)
-           (member 'player (npc-inventory npc))))
-    (let ((holding-npc (car (remove-if-not #'holding-player *npcs*))))
+  (flet ((holding-player-p (npc)
+           (eq (item-location 'player) (actor-inventory npc))))
+    (let ((holding-npc (car (remove-if-not #'holding-player-p *npcs*))))
       (if (null holding-npc)
           (princ-stylized-list (game-eval (remove-if #'fluff-word-p input)))
           (if (eq (car input) 'struggle)
               (if (zerop (random 10))
                   (progn
-                    (setf (npc-inventory holding-npc)
-                          (remove 'player (npc-inventory holding-npc)))
+                    (push (cons 'player 'free) *item-locations*)
                     (princ-stylized-list '(you get away!)))
                   (princ-stylized-list
                    '(you struggle... but it is fruitless.)))
               (princ-stylized-list
-               `(you "can't" move! ,(npc-name holding-npc) is holding onto
+               `(you "can't" move! ,(actor-name holding-npc) is holding onto
                      you tightly! try to struggle to get away!)))))))
 
 ;; Main game loop
