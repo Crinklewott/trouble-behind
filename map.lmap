@@ -60,7 +60,7 @@
    (hallway (west your-bedroom door)
 	    (south dining-room exit))
    (dining-room (north hallway exit)
-                (northeast kitchen door)
+                (northwest kitchen door)
                 (west garage door))
    (kitchen (south dining-room door)
             (west living-room arch))
