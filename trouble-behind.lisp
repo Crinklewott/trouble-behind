@@ -403,7 +403,7 @@ and psychic way)"
 (defmethod npc-ai (npc (motive (eql 'grab-player)))
   "The NPC motive code for when they wish to grab the player."
   (if (eq (actor-location npc) (actor-location *player*))
-      (unless (or (zerop (random 5))
+      (unless (or (zerop (random 2))
                   (eq (item-location 'player)
                       (actor-inventory npc)))
         (push (cons 'player (actor-inventory npc)) *item-locations*)
