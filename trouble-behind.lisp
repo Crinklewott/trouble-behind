@@ -513,14 +513,18 @@ Valid words are:
       (if form
           (if (not (special-command-run-p input))
               (if (eval (fourth form))
-                  (progn
-                    (incf (player-trouble-points *player*) (second form))
-                    (npc-alert-in-range (actor-location *player*) (third form))
-                    (push (list input (actor-location *player*))
-                          *events-complete*)
-                    (when (sixth form)
-		      (mapc #'eval (sixth form)))
-                    (fifth form))
+                  (with-slots (location trouble-points) *player*
+                    (flet ((inject-location (form)
+                             (mapcar
+                              (lambda (sym)
+                                (if (eq sym 'location) `(quote ,location) sym))
+                              form)))
+                      (incf trouble-points (second form))
+                      (npc-alert-in-range location (third form))
+                      (push (list input location) *events-complete*)
+                      (when (sixth form)
+                        (mapc #'eval (mapcar #'inject-location (sixth form))))
+                      (fifth form)))
                   '(you cannot do that.))
               '(you already did that.))
           '(huh?)))))

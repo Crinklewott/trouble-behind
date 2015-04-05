@@ -150,8 +150,8 @@
            are getting away with that one! one of the larger shards
            falls to the floor.)
       ((item-is-now-at 'vase 'ether)
-       (item-is-now-at 'shard *player-location*)
-       (item-is-now-at 'baseball *player-location*))))
+       (item-is-now-at 'shard location)
+       (item-is-now-at 'baseball location))))
 
    (put
     ((blanket window) 0 0
