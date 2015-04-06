@@ -149,7 +149,7 @@ For example:
      ((new-location-description
        (you are in your bedroom. a broken clock sits sadly on the wall.))
       (item-is-now-at 'baseball 'your-bedroom)))
-    
+
     ((baseball window) 50 4
      (when-player can see baseball and is in the hallway)
      (the window shatters into a waterfall of shards! oh man... you
@@ -159,15 +159,15 @@ For example:
        (you are in a long hallway. a brisk wind gusts in from the
             shattered window.))
       (item-is-now-at 'baseball 'yard)))
-    
+
     ((baseball vase) 150 2
      (when-player can see baseball and can see vase)
      (the vase shatters! that vase was priceless. there is no way you
           are getting away with that one! one of the larger shards
           falls to the floor.)
      ((item-is-now-at 'vase 'ether)
-      (item-is-now-at 'shard *player-location*)
-      (item-is-now-at 'baseball *player-location*))))
+      (item-is-now-at 'shard location)
+      (item-is-now-at 'baseball location))))
 #+END_SRC
 This giant form probably looks really intimidating... But it really
 isn't when you break it down.
@@ -327,7 +327,7 @@ This would make the =vase= disappear from the map.
 I also define items in the =ether= in the map itself so I can "poof"
 them into existence on certain events, like:
 #+BEGIN_SRC lisp
-  (item-is-now-at 'shard *player-location*)
+  (item-is-now-at 'shard location)
 #+END_SRC
 
 This would make the =shard= item appear in the same room as the player
@@ -373,14 +373,14 @@ certain nodes.
 *** Special forms
 There are two special forms you can use in your commands:
 
-**** =*player-location*=
-Putting =*player-location*= on its own will substitute itself for the
+**** =location=
+Putting =location= on its own will substitute itself for the
 current location the player is standing. Generally, you would use this
 if you want to do something at the current location of the player.
 
 For example:
 #+BEGIN_SRC lisp
-  (item-is-now-at 'shard *player-location*)
+  (item-is-now-at 'shard location)
 #+END_SRC
 
 This puts the =shard= item in the same node that the player is
@@ -407,8 +407,8 @@ With all of the above, consider the following form:
           are getting away with that one! one of the larger shards falls
           to the floor.)
      ((item-is-now-at 'vase 'ether)
-      (item-is-now-at 'shard *player-location*)
-      (item-is-now-at 'baseball *player-location*))))
+      (item-is-now-at 'shard location)
+      (item-is-now-at 'baseball location))))
 #+END_SRC
 
 This entire action means:
