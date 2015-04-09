@@ -421,9 +421,6 @@ their path."
     (npc-follow-path npc))
   (mapc #'investigate-event (get-events-complete-at (actor-location npc)))))
 
-(defmethod npc-ai (npc (motive (eql 'search-for-player)))
-  "The NPC motive for looking for the player if they think they are nearby.")
-
 (defun update-npcs ()
   "Updates all of the currently active NPCs after they completed their
 tasks."
