@@ -212,10 +212,9 @@ otherwise."
 (defun describe-npcs-at-location (location)
   "Describes all of the NPCs in the past in list that are at the
 passed-in location."
-  (mapcan
-   (lambda (npc)
-     (list (actor-name npc) 'is 'in 'the 'room 'with 'you.))
-   (remove-if-not (lambda (npc) (eq (actor-location npc) location)) *npcs*)))
+  (mapcan (lambda (npc) (list (actor-name npc) 'is 'in 'the 'room 'with 'you.))
+          (remove-if-not (lambda (npc) (eq (actor-location npc) location))
+                         *npcs*)))
 
 ;; Player location-oriented functions
 (defun look ()
@@ -476,13 +475,13 @@ Valid words are:
 - has, holds <item>
 - see, sees <thing>
 - already <special command>"
-  (labels ((parse (args acc)
-	     (let ((current (car args)))
-	       (when current
-		 (case current
-                   ((in at)
-                    (cons acc (cons `(eq ',(cadr args)
-                                         (actor-location *player*))
+  (with-slots (location) *player*
+    (labels ((parse (args acc)
+               (let ((current (car args)))
+                 (when current
+                   (case current
+                     ((in at)
+                      (cons acc (cons `(eq ',(cadr args) location)
                                     (parse (cddr args) acc))))
                    ((has holds)
                     (cons acc (cons `(member ',(cadr args) (inventory))
@@ -491,8 +490,7 @@ Valid words are:
                     (cons acc (cons `(special-command-run-p ',(cadr args))
                                     (parse (cddr args) acc))))
                    ((see sees)
-                    (cons acc (cons `(can-see ',(cadr args)
-                                              (actor-location *player*))
+                    (cons acc (cons `(can-see ',(cadr args) location)
                                     (parse (cddr args) acc))))
                    (and (cdr (parse (cdr args) '())))
                    (otherwise (parse (cdr args) '())))))))
