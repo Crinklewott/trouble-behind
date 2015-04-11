@@ -439,11 +439,18 @@ For example:
 This would define an NPC called "=person=" who starts in the
 "=bedroom=" node on the map.
 
-Currently NPCs only have two potential actions: Either they will
-occasionally move from one node to another neighbouring one, or if
-set, will walk the shortest route they can to reach a destination
-node.
+Currently NPCs only have three potential actions: Either they will
+occasionally move from one node to another neighbouring one, will walk
+the shortest route they can to reach a destination node, or follow a
+particular AI algorithm called a "motivation".
 
 Destination nodes are currently set when an NPC notices an event
 occurring. (IE: They are in range of the event's alert specified by
 the [[Third form][third form]].)
+
+There are currently three AI motivations: "=find-player=", which makes
+the AI seek out the player. =grab-player=, which sets the
+=find-player= motivation if they can't see the player, or if they can,
+restrains them. Or =investigate=, which investigates their current
+node for actions complete, and reacts
+accordingly. (Increasing/decreasing anger, etc...)
