@@ -481,7 +481,7 @@ Valid words are:
                  (when current
                    (case current
                      ((in at)
-                      (cons acc (cons `(eq ',(cadr args) location)
+                      (cons acc (cons `(eq ',(cadr args) ',location)
                                     (parse (cddr args) acc))))
                    ((has holds)
                     (cons acc (cons `(member ',(cadr args) (inventory))
@@ -490,39 +490,58 @@ Valid words are:
                     (cons acc (cons `(special-command-run-p ',(cadr args))
                                     (parse (cddr args) acc))))
                    ((see sees)
-                    (cons acc (cons `(can-see ',(cadr args) location)
+                    (cons acc (cons `(can-see ',(cadr args) ',location)
                                     (parse (cddr args) acc))))
                    (and (cdr (parse (cdr args) '())))
                    (otherwise (parse (cdr args) '())))))))
-    (parse (remove-if #'fluff-word-p arg-list) 'and)))
+    (parse (remove-if #'fluff-word-p arg-list) 'and))))
 
 (defun special-command-run-p (command)
-  "Checks if a special command has run successfully."
+  "Checks if a special command has already run successfully."
   (assoc (remove-if #'fluff-word-p command) *events-complete* :test #'equal))
 
+(defun run-user-event (points range message &optional code)
+  "Runs a special type of form created by the user.
+Accepts four arguments:
+
+  points  - The number of trouble-points this event will give \(Or take
+            away\) from the player
+  range   - How far away is this event noticable from?
+  message - The message the user sees when this event is run.
+  code    - An optional argument that will allow arbitrary Lisp code to
+            run when this event occurs. This is done in a small
+            user-namespace where \"location\" will be replaced with
+            the actual player location.
+
+Currently only used in special-command, but can be used as a way to
+add user-scripting to user-files.."
+  (with-slots (location trouble-points) *player*
+    (when code
+      (mapc #'eval (mapcar (lambda (form)
+                             (substitute `(quote ,location) 'location form))
+                           code)))
+    (incf trouble-points points)
+    (npc-alert-in-range location range)
+    message))
+  
 (defun special-command (input)
   "Runs a command configured in the map"
-  (let ((event (get-event (car input)))
-        (args (cdr input)))
-    (let ((form (assoc args event :test #'equal)))
+    (let* ((event (get-event (car input)))
+           (args (cdr input))
+           (location (actor-location *player*))
+           (form (assoc args event :test #'equal)))
       (if form
           (if (not (special-command-run-p input))
-              (if (eval (fourth form))
-                  (with-slots (location trouble-points) *player*
-                    (flet ((inject-location (form)
-                             (mapcar
-                              (lambda (sym)
-                                (if (eq sym 'location) `(quote ,location) sym))
-                              form)))
-                      (incf trouble-points (second form))
-                      (npc-alert-in-range location (third form))
-                      (push (list input location) *events-complete*)
-                      (when (sixth form)
-                        (mapc #'eval (mapcar #'inject-location (sixth form))))
-                      (fifth form)))
+              (if (eval
+                   (substitute `(quote ,location) 'location (fourth form)))
+                  (progn
+                    (push
+                     (list input (actor-location *player*)) *events-complete*)
+                    (run-user-event
+                     (second form) (third form) (fifth form) (sixth form)))
                   '(you cannot do that.))
               '(you already did that.))
-          '(huh?)))))
+          '(huh?))))
 
 
 ;; Game REPL functions
