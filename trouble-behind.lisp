@@ -1,3 +1,6 @@
+(load "load.lisp")
+(in-package :io.github.thingywhat.trouble-behind)
+
 ;; Loading external information first
 (defparameter *map*
   (with-open-file (nodes "map.lmap" :direction :input)
@@ -5,70 +8,6 @@
   "The map that contains all of the location nodes as well as the
   edges that connect them.")
 
-;; Classes
-(defclass actor ()
-  ((name
-    :documentation "The name of the actor"
-    :initarg :name
-    :accessor actor-name
-    :type string)
-   (location
-    :documentation "The actor's current location"
-    :initarg :location
-    :accessor actor-location
-    :type symbol)
-   (inventory
-    :documentation "The name of the symbol that specifies this actor's
-    inventory location."
-    :initarg :inventory
-    :initform (gensym)
-    :reader actor-inventory
-    :type symbol))
-  (:documentation "An actor is anything in the game world that isn't
-  an object. This includes the player and NPCs."))
-
-(defclass npc (actor)
-  ((path
-    :documentation "The path that the NPC is attempting to walk."
-    :initarg :path
-    :initform '()
-    :accessor npc-path
-    :type list)
-   (anger
-    :documentation "How mad the NPC currently is."
-    :initarg :anger
-    :initform 0
-    :accessor npc-anger
-    :type number)
-   (motive
-    :documentation "The current motivations of the NPC."
-    :initarg :motive
-    :initform nil
-    :accessor npc-motives
-    :type list)
-   (seen
-    :documentation "A list of noteworthy things this NPC has seen."
-    :initarg :seen
-    :initform nil
-    :accessor npc-seen
-    :type list))
-  (:documentation "An NPC is a type of actor that has AI driving
-  it. Each active NPC shoukd be added to the *npcs* list below when
-  deemed to become \"active\", as that will make the actor
-  automagically update according to their AI implementation"))
-
-(defclass player (actor)
-  ((trouble-points
-    :documentation "How much trouble the player has caused... Also
-    doubles as a score."
-    :initarg :trouble-points
-    :initform 0
-    :accessor player-trouble-points
-    :type number))
-  (:documentation "The player class is a type of actor that is
-  controlled by a human."))
-
-;; State
 (defparameter *item-locations*
   (mapcar (lambda (x) (cons (car x) (caadr x)))
 	  (cadr (assoc 'item-details *map*)))
@@ -113,49 +52,6 @@ individual item"
 (defmap items get-items get-item)
 (defmap item-details get-item-details get-item-detail)
 (defmap events get-event-list get-event)
-
-;; Grammar and string output functions
-(defun fluff-word-p (word)
-  "Returns if the passed in word is a fluff word and should be
-ignored."
-  (member word '(the at to my a can is out with through)))
-
-(let ((vowels '(#\a #\e #\i #\o #\u #\y)))
-  (defun begins-with-vowel (thing)
-    "Returns the vowel a word begins with, if it begins with it. nil
-otherwise."
-    (find (char-downcase (car (coerce thing 'list))) vowels))
-  (defun a/an (thing)
-    "Returns a or an depending on the grammar used to describe something."
-    (if (begins-with-vowel (prin1-to-string thing)) 'an 'a)))
-
-(defun stylize-string (str)
-  "Stylizes a string so it prints with correct capitalization and
-formatting from a string."
-  (labels ((style (char-list caps ver)
-	     (when char-list
-	       (let ((f (car char-list))
-		     (rest (cdr char-list)))
-		 (cond
-                   (ver (if (char= f #\")
-                          (style rest caps nil)
-                          (cons f (style rest caps t))))
-                   ((char= f #\Space) (cons f (style rest caps ver)))
-                   ((char= f #\") (style rest caps t))
-		   ((member f '(#\. #\? #\!)) (cons f (style rest t ver)))
-		   (caps (cons (char-upcase f) (style rest nil ver)))
-		   (t (cons (char-downcase f) (style rest nil ver))))))))
-    (coerce (style (coerce str 'list) t nil) 'string)))
-
-(defun stylize-list (list)
-  "Stylizes a list as a pretty string."
-  (stylize-string (string-trim "()" (prin1-to-string list))))
-
-(defun princ-stylized-list (list)
-  "Princs a stylized list with proper capitalization and stuff."
-  (fresh-line)
-  (princ (stylize-list list))
-  (fresh-line))
 
 ;; Querying
 (defun item-location (item)
