@@ -1,7 +1,15 @@
 ;;;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp; Base: 10 -*-
 
+(defpackage :io.github.thingywhat.prettify
+  (:use :common-lisp :asdf)
+  (:export :fluff-word-p
+           :a/an
+           :stylize-string
+           :stylize-list
+           :princ-stylized-list))
+
 (defpackage :io.github.thingywhat.trouble-behind
-  (:use :common-lisp :asdf))
+  (:use :common-lisp :asdf :io.github.thingywhat.prettify))
 
 (in-package :io.github.thingywhat.trouble-behind)
 
@@ -10,11 +18,18 @@
   :version "0.0"
   :author "thingywhat"
   :serial t
-  :components ((:file "game/classes")
-               (:file "game/output")
-               (:file "game/state")
-               (:file "game/map")
-               (:file "game/player-commands")
-               (:file "game/ai")
-               (:file "game/map-utility")
-               (:file "game/player")))
+  :components ((:module prettify
+                        :serial t
+                        :pathname "lib"
+                        :components ((:file "prettify")))
+               (:module game
+                        :serial t
+                        :pathname "game"
+                        :components ((:file "classes")
+                                     (:file "state")
+                                     (:file "map")
+                                     (:file "player-commands")
+                                     (:file "ai")
+                                     (:file "map-utility")
+                                     (:file "player")))))
+

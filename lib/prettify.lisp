@@ -1,4 +1,4 @@
-(in-package :io.github.thingywhat.trouble-behind)
+(in-package :io.github.thingywhat.prettify)
 
 (defun fluff-word-p (word)
   "Returns if the passed in word is a fluff word and should be
@@ -12,7 +12,7 @@ otherwise."
     (find (char-downcase (car (coerce thing 'list))) vowels))
   (defun a/an (thing)
     "Returns a or an depending on the grammar used to describe something."
-    (if (begins-with-vowel (prin1-to-string thing)) 'an 'a)))
+    (if (begins-with-vowel (prin1-to-string thing)) :an :a)))
 
 (defun stylize-string (str)
   "Stylizes a string so it prints with correct capitalization and
