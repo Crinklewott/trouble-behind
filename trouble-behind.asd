@@ -2,8 +2,7 @@
 
 (defpackage :io.github.thingywhat.prettify
   (:use :common-lisp :asdf)
-  (:export :fluff-word-p
-           :a/an
+  (:export :a/an
            :stylize-string
            :stylize-list
            :princ-stylized-list))
@@ -28,6 +27,7 @@
                         :components ((:file "classes")
                                      (:file "state")
                                      (:file "map")
+                                     (:file "user-input")
                                      (:file "player-commands")
                                      (:file "ai")
                                      (:file "map-utility")

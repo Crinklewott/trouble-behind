@@ -1,6 +1,5 @@
 (in-package :io.github.thingywhat.trouble-behind)
 
-
 ;; Player location-oriented functions
 (defun look ()
   "Outputs what the player sees around them."
