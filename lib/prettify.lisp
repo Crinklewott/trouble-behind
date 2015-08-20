@@ -34,5 +34,5 @@ formatting from a string."
 (defun princ-stylized-list (list)
   "Princs a stylized list with proper capitalization and stuff."
   (fresh-line)
-  (princ (stylize-list list))
+  (pprint-fill *standard-output* (stylize-list list))
   (fresh-line))
