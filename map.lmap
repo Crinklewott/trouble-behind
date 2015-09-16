@@ -164,7 +164,4 @@
        '(you are in a long hallway. a blanket hanging from the broken
 	 window sways gently in the wind.))
       (connect-places 'hallway 'east 'back-yard 'west 'blanket))))))
- (npcs ((person bedroom
-                ((1 (you hear footsteps just outside the room.))
-                 (2 (you hear footsteps.))
-                 (3 (you hear the faint sound of footsteps.)))))))
+ (npcs ((person bedroom))))
