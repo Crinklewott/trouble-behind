@@ -30,6 +30,5 @@
                                      (:file "user-input")
                                      (:file "player-commands")
                                      (:file "ai")
-                                     (:file "map-utility")
+                                     (:file "map-api")
                                      (:file "player")))))
-
