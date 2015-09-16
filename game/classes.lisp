@@ -45,6 +45,13 @@
     :initarg :seen
     :initform nil
     :accessor npc-seen
+    :type list)
+   (sounds
+    :documentation "An alist of sounds an NPC makes based on their vicinity."
+    :initarg :sounds
+    :initform '((1 (you hear footsteps.))
+                (2 (you hear the faint sound of footsteps.)))
+    :accessor npc-sounds
     :type list))
   (:documentation "An NPC is a type of actor that has AI driving
   it. Each active NPC shoukd be added to the *npcs* list below when

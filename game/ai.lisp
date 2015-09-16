@@ -64,18 +64,16 @@ passed in node."
 
 
 ;; NPC command and AI implementation details
-(defun npc-alert-players-in-range (location)
-  "Alerts the players of the sound of NPCs approaching them from up to
-  3 nodes away."
-  (mapc (lambda (node)
-          (when (eq (car node) (actor-location *player*))
-            (princ-stylized-list
-             (case (cdr node)
-               (1 '(you hear footsteps just outside the room.))
-               (2 '(you hear footsteps.))
-               (3 '(you hear the faint sound of footsteps.))))))
-        (remove-if (lambda (node) (zerop (cdr node)))
-                   (get-nodes-within-range location 3))))
+(defun npc-alert-players-in-range (npc)
+  "Alerts the players of the sound of NPCs approaching them based on
+the NPC's sounds alist."
+  (let ((max-distance (reduce #'max (mapcar #'car (npc-sounds npc))))
+        (location (actor-location npc)))
+    (mapc (lambda (node)
+            (when (eq (car node) (actor-location *player*))
+              (princ-stylized-list (cdr (assoc (cdr node) (npc-sounds npc))))))
+          (remove-if (lambda (node) (zerop (cdr node)))
+                     (get-nodes-within-range location max-distance)))))
 
 (defun display-walk (source npc)
   "Outputs what a player would see given their current location if an
@@ -90,7 +88,7 @@ NPC walked from some location to their current location."
 	      (princ-stylized-list
 	       `(you see ,(actor-name npc) walk to the ,direction))))
           (progn
-            (npc-alert-players-in-range destination)
+            (npc-alert-players-in-range npc)
             (when (eq (actor-location *player*) destination)
               (let ((direction (get-direction destination source)))
                 (princ-stylized-list
