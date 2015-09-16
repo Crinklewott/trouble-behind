@@ -226,7 +226,7 @@ The number =2= is the range the event can be noticed, so any NPC
 within 2 moves of the place you threw the baseball at the clock will
 notice, and by default, will come investigate the event.
 
-* Fourth form
+** Fourth form
 The fourth form... Eg:
 #+BEGIN_SRC lisp
   (when-player can see baseball and is in your-bedroom)
@@ -262,9 +262,9 @@ The way it is documented in the source file is as follows:
   - already <special command>
 #+END_EXAMPLE
 
-On thing this documentation does not describe is that this macro
-can also check if a player already ran another event in the past
-with "=already="...
+One thing this documentation does not describe is that this macro can
+also check if a player already ran another event in the past with
+"=already="...
 
 For example:
 #+BEGIN_SRC lisp
@@ -288,7 +288,7 @@ for you to understand.
 
 ** Fifth form
 The fifth form shows the message that the player will see when they
-successfully perform this action (Meaning the conditions in the second
+successfully perform this action (Meaning the conditions in the fourth
 pass), so:
 #+BEGIN_SRC lisp
   (uh-oh! the clock shatters! you retreive the baseball.)
