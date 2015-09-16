@@ -88,7 +88,8 @@ NPC walked from some location to their current location."
 	      (princ-stylized-list
 	       `(you see ,(actor-name npc) walk to the ,direction))))
           (progn
-            (npc-alert-players-in-range npc)
+            (unless (eq source destination)
+              (npc-alert-players-in-range npc))
             (when (eq (actor-location *player*) destination)
               (let ((direction (get-direction destination source)))
                 (princ-stylized-list
