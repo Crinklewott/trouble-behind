@@ -12,10 +12,7 @@
 (defun look-at (target)
   "Gets the player to look at some target if they can see it."
   (let* ((player-location (actor-location *player*))
-         (npc (loop for npc in *npcs*
-                 when (with-slots (name location) npc
-                        (and (eq target name) (eq player-location location)))
-                 return npc)))
+         (npc (can-see-npc target player-location)))
     (if npc
         (npc-description npc)
         (if (can-see-item target player-location)

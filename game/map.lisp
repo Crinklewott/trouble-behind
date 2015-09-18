@@ -45,6 +45,20 @@ otherwise."
     (or (eq location loc)
 	(eq 'inventory loc))))
 
+(defun can-see-npc (target-name target-location)
+  "Checks and returns any NPC you can see in the passed in location
+given the passed in name"
+  (loop for npc in *npcs*
+     when (with-slots (name location) npc
+            (and (eq target-name name) (eq target-location location)))
+     return npc))
+
+(defun can-see (target location)
+  "Checks if you can see either an NPC or an item at the given
+location"
+  (or (can-see-npc target location)
+      (can-see-item target location)))
+
 (defun get-event-details (event)
   "Fetches the details of an event action list."
   (assoc (cdr event) (get-event (car event)) :test #'equal))
