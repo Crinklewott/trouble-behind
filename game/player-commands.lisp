@@ -9,11 +9,18 @@
    (describe-items-at-location (get-item-details) (actor-location *player*))
    (describe-npcs-at-location (actor-location *player*))))
 
-(defun look-at (item)
-  "Gets the player to look at an item if they can see it."
-  (if (can-see item (actor-location *player*))
-      (car (get-item item))
-      `(you cannot see any ,item around here.)))
+(defun look-at (target)
+  "Gets the player to look at some target if they can see it."
+  (let* ((player-location (actor-location *player*))
+         (npc (loop for npc in *npcs*
+                 when (with-slots (name location) npc
+                        (and (eq target name) (eq player-location location)))
+                 return npc)))
+    (if npc
+        (npc-description npc)
+        (if (can-see-item target player-location)
+            (car (get-item target))
+            `(you cannot see any ,target around here.)))))
 
 (defun walk (direction)
   "Makes the player walk a specific direction if possible."
@@ -31,7 +38,7 @@
 
 (defun pickup (item)
   "Lets the player pick up an item and put it in their inventory."
-  (if (can-see item (actor-location *player*))
+  (if (can-see-item item (actor-location *player*))
       (if (member item (inventory))
 	  '(you already have that.)
 	  (let ((excuse (cadr (get-item item))))

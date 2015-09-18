@@ -39,7 +39,7 @@ otherwise."
      when (eq item (car i)) collect i into acc
      when (< 1 (length acc)) return t))
 
-(defun can-see (item location)
+(defun can-see-item (item location)
   "Checks if you can see an item currently"
   (let ((loc (item-location item)))
     (or (eq location loc)
@@ -85,4 +85,3 @@ passed-in location."
   (mapcan (lambda (npc) (list (actor-name npc) 'is 'in 'the 'room 'with 'you.))
           (remove-if-not (lambda (npc) (eq (actor-location npc) location))
                          *npcs*)))
-

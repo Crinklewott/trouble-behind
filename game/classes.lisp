@@ -52,6 +52,13 @@
     :initform '((1 (you hear footsteps.))
                 (2 (you hear the faint sound of footsteps.)))
     :accessor npc-sounds
+    :type list)
+   (description
+    :documentation "A description of what this NPC looks like."
+    :initarg :description
+    :initform '(an ominouns-looking man. you probably "don't" want to
+                mess with him.)
+    :accessor npc-description
     :type list))
   (:documentation "An NPC is a type of actor that has AI driving
   it. Each active NPC shoukd be added to the *npcs* list below when
