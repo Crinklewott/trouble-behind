@@ -151,7 +151,14 @@
            falls to the floor.)
       ((item-is-now-at 'vase 'ether)
        (item-is-now-at 'shard location)
-       (item-is-now-at 'baseball location))))
+       (item-is-now-at 'baseball location)))
+     ((baseball person) 1000 3
+      (when-player can see baseball and can see person)
+      (person screams as your baseball hits its mark--then turns to
+      face you with an incredible amount of anger. this was probably a
+      really bad idea.)
+      ((item-is-now-at 'baseball location)
+       (setf (npc-motives (car *npcs*)) '(grab-player)))))
 
    (put
     ((blanket window) 0 0
