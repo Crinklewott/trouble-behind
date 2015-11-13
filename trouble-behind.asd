@@ -1,23 +1,12 @@
 ;;;; -*- Mode: Lisp; Syntax: ANSI-Common-Lisp; Base: 10 -*-
 
-(defpackage :io.github.thingywhat.prettify
-  (:use :common-lisp :asdf)
-  (:export :a/an
-           :stylize-string
-           :stylize-list
-           :princ-stylized-list))
-
-(defpackage :io.github.thingywhat.trouble-behind
-  (:use :common-lisp :asdf :io.github.thingywhat.prettify))
-
-(in-package :io.github.thingywhat.trouble-behind)
-
-(defsystem trouble-behind
+(asdf:defsystem trouble-behind
   :name "Trouble Behind"
   :version "0.0"
   :author "thingywhat"
   :serial t
-  :components ((:module prettify
+  :components ((:file "packages")
+               (:module prettify
                         :serial t
                         :pathname "lib"
                         :components ((:file "prettify")))

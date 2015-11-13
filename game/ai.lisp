@@ -140,7 +140,20 @@ and psychic way)"
                       (actor-inventory npc)))
         (push (cons 'player (actor-inventory npc)) *item-locations*)
         (princ-stylized-list `(,(actor-name npc) grabs ahold of you!)))
-      (push 'find-player (npc-motives npc))))
+      (npc-ai npc 'find-player)))
+
+(defmethod npc-ai (npc (motive (eql 'spank-player)))
+  "The NPC motive code for angry NPCs that want to spank the player."
+  (if (eq (actor-inventory npc)
+          (item-location 'player))
+      (if (player-clothes *player*)
+          (princ-stylized-list
+           `(,(actor-name npc)
+              removes your ,(car (push (pop (player-clothes *player*))
+                                       (player-removed-clothes *player*)))))
+          (progn (princ-stylized-list `(,(actor-name npc) spanks you!))
+                 (decf (player-spunk *player*) 10)))
+      (npc-ai npc 'grab-player)))
 
 (defmethod npc-ai (npc (motive (eql 'investigate)))
   "Investigates the current location, or the location at the end of

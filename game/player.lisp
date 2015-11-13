@@ -68,10 +68,17 @@ performs the respective game commands passed in."
 output."
   (loop for input = '(look)
      then (read-from-string (concatenate 'string "(" (read-line) ")"))
-     when (eq (car input) 'quit)
+     when (or (eq (car input) 'quit)
+              (and (<= (player-spunk *player*) 0)
+                   (princ "You collapse into a sobbing heap. Game over!")))
      return t
      do (progn
           (handle-player input)
           (fresh-line)
           (update-npcs)
 	  (fresh-line))))
+
+(defun new-game ()
+  "Starts a new game of trouble-behind"
+  (reset-state)
+  (game-loop))

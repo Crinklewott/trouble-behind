@@ -72,6 +72,24 @@
     :initarg :trouble-points
     :initform 0
     :accessor player-trouble-points
-    :type number))
+    :type number)
+   (spunk
+    :documentation "How much the player is willing to continue."
+    :initarg :spunk
+    :initform 100
+    :accessor player-spunk
+    :type number)
+   (clothes
+    :documentation "What the player is currently wearing"
+    :initarg :dress
+    :initform '(pants underwear)
+    :accessor player-clothes
+    :type list)
+   (removed-clothes
+    :documentation "What clothing has been removed from the player"
+    :initarg :undressed
+    :initform '()
+    :accessor player-removed-clothes
+    :type list))
   (:documentation "The player class is a type of actor that is
   controlled by a human."))
