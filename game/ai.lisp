@@ -152,7 +152,8 @@ and psychic way)"
               removes your ,(car (push (pop (player-clothes *player*))
                                        (player-removed-clothes *player*)))))
           (progn (princ-stylized-list `(,(actor-name npc) spanks you!))
-                 (decf (player-spunk *player*) 10)))
+                 (decf (player-spunk *player*) (random 10))
+                 (princ-stylized-list (get-spunk-message (player-spunk *player*)))))
       (npc-ai npc 'grab-player)))
 
 (defmethod npc-ai (npc (motive (eql 'investigate)))

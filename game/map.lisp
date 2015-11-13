@@ -26,6 +26,7 @@ individual item"
 (defmap items get-items get-item)
 (defmap item-details get-item-details get-item-detail)
 (defmap events get-event-list get-event)
+(defmap spunk-messages get-spunk-messages get-spunk-message)
 
 ;; Querying
 (defun item-location (item)

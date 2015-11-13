@@ -62,6 +62,16 @@ performs the respective game commands passed in."
                `(you "can't" move! ,(actor-name holding-npc) is holding onto
                      you tightly! try to struggle to get away!)))))))
 
+(defun get-spunk-message (num)
+  "Gets a spunk message based on the passed-in number"
+  (flet ((in-range (spunk)
+           (< (abs (- num (car spunk))) 10))
+         (pick (list)
+           (nth (random (length list)) list)))
+    (if (< 0 num)
+        (cadr (pick (cdar (remove-if-not #'in-range (get-spunk-messages)))))
+        '("..."))))
+
 ;; Main game loop
 (defun game-loop ()
   "Loops through user input passing it to game-eval and stylyzing the
