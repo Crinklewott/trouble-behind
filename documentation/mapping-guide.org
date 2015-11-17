@@ -2,7 +2,7 @@
 #+AUTHOR:thingywhat
 :SETTINGS:
 #+DRAWERS:SETTINGS
-#+STARTUP hidestars
+#+STARTUP:hidestars
 :END:
 
 Trouble Behind has a pretty extensive map system composed entirely of
