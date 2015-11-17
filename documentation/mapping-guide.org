@@ -421,13 +421,13 @@ You can control NPCs by setting their motivations using =setf=:
    t)
 #+END_SRC
 
-For more details, see the npc [[Motivations]] section.
+For more details, see the npc "Motivations" section below.
 
 ** Seventh form
 The seventh form is probably the simplest... It's either nothing, or
 "=t=". When it isn't there, the event can only be completed once,
 however, when it exists and is "=t=", the event can be run as many
-times as the conditions in the [[Fourth form][fourth form]] have been satisfied.
+times as the conditions in the fourth form have been satisfied.
 
 ** Putting it all together
 With all of the above, consider the following form:
@@ -487,10 +487,10 @@ particular AI algorithm called a "motivation".
 
 Destination nodes are currently set when an NPC notices an event
 occurring. (IE: They are in range of the event's alert specified by
-the [[Third form][third form]].)
+the third form.)
 
 ** Motivations
-NPC motivations can be set by the player in the [[events]] section of the
+NPC motivations can be set by the player in the events section of the
 map... They can be seen as kind of "modes" that change how NPCs
 behave...
 
@@ -510,7 +510,7 @@ accordingly. (Increasing/decreasing anger, etc...)
 
 *** grab-player
 Attempts to restrain the player, and if the NPC can't see the player,
-it sets the [[find-player]] motivation until it has found the player.
+it sets the find-player motivation until it has found the player.
 
 *** investigate
 The NPC travels to the site of an event, and gets angry if it finds a
@@ -521,17 +521,16 @@ When grabbing a player, spank-player is a motivation that will make
 the NPC remove the player's clothing and spank them until they
 collapse in a mess of tears. This, of course is game over.
 
-If the NPC is not grabbing any players, it sets the [[grab-player]]
+If the NPC is not grabbing any players, it sets the grab-player
 motivation first.
 
 This motivation is very aggressive, so if you plan to use it a lot,
 make sure your players have a fighting chance to get away by creating
-events that set the "[[dazed]]" status one or more times.
+events that set the "dazed" status one or more times.
 
 *** dazed
 The dazed motivation will make the NPC pause momentarily, and then set
-the [[spank-player]] motivation.
-
+the spank-player motivation.
 
 
 * spunk-messages
@@ -564,7 +563,3 @@ spunk, either "Ow" or "Yip!" will be displayed when they are
 punished. As spunk goes down, the lower down the list it starts
 picking. You can numbers between for finer control, and there is an
 implicit "=0=" that is set to the message "=...=".
-
-
-* Metadata                                                         :noexport:
-#  LocalWords:  Eg LocalWords NPCs NPC npcs npc Aaahh
