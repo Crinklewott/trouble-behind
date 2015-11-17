@@ -125,10 +125,12 @@ once in a while... Or if a path is set, follow it."
 (defmethod npc-ai (npc (motive (eql 'find-player)))
   "The NPC motive code for finding the player. (Currently in a dumb
 and psychic way)"
-  (if (npc-path npc)
+  (if (and (npc-path npc)
+           (not (eq (actor-location npc) (actor-location *player*))))
       (npc-follow-path npc)
-      (setf (npc-path npc)
-            (get-path (actor-location npc) (actor-location *player*))))
+      (progn (setf (npc-path npc)
+                   (cdr (get-path (actor-location npc) (actor-location *player*))))
+             (npc-ai npc 'find-player)))
   (when (eq (actor-location npc) (actor-location *player*))
     (pop (npc-motives npc))))
 
@@ -139,8 +141,9 @@ and psychic way)"
                   (eq (item-location 'player)
                       (actor-inventory npc)))
         (push (cons 'player (actor-inventory npc)) *item-locations*)
-        (princ-stylized-list `(,(actor-name npc) grabs ahold of you!)))
-      (npc-ai npc 'find-player)))
+        (princ-stylized-list `(,(actor-name npc) grabs ahold of you!))
+        (pop (npc-motives npc)))
+      (npc-ai npc (car (push 'find-player (npc-motives npc))))))
 
 (defmethod npc-ai (npc (motive (eql 'spank-player)))
   "The NPC motive code for angry NPCs that want to spank the player."
@@ -156,7 +159,7 @@ and psychic way)"
                  (princ-stylized-list (pick (cadr (npc-punishment-messages npc))))
                  (decf (player-spunk *player*) (random 10))
                  (princ-stylized-list (get-spunk-message (player-spunk *player*)))))
-      (npc-ai npc 'grab-player)))
+      (npc-ai npc (car (push 'grab-player (npc-motives npc))))))
 
 (defmethod npc-ai (npc (motive (eql 'investigate)))
   "Investigates the current location, or the location at the end of
