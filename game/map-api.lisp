@@ -80,7 +80,7 @@ add user-scripting to user-files.."
     (incf trouble-points points)
     (npc-alert-in-range location range)
     message))
-  
+
 (defun special-command (input)
   "Runs a command configured in the map"
     (let* ((event (get-event (car input)))
@@ -88,7 +88,8 @@ add user-scripting to user-files.."
            (location (actor-location *player*))
            (form (assoc args event :test #'equal)))
       (if form
-          (if (not (special-command-run-p input))
+          (if (or (not (special-command-run-p input))
+                  (seventh form))
               (if (eval
                    (substitute `(quote ,location) 'location (fourth form)))
                   (progn
