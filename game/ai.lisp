@@ -165,6 +165,12 @@ and psychic way)"
                  (princ-stylized-list (get-spunk-message (player-spunk *player*)))))
       (npc-ai npc (car (push 'grab-player (npc-motives npc))))))
 
+(defmethod npc-ai (npc (motive (eql 'dazed)))
+  "The NPC motive when they get dazed"
+  (when (eq (actor-location npc) (actor-location *player*))
+    (princ-stylized-list `(,(actor-name npc) staggers!)))
+  (push 'spank-player (npc-motives npc)))
+
 (defmethod npc-ai (npc (motive (eql 'investigate)))
   "Investigates the current location, or the location at the end of
 their path."
