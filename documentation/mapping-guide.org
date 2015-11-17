@@ -51,7 +51,7 @@ game...
 
 The default is:
 #+BEGIN_SRC lisp
-  (player-location  your-bedroom)
+  (player-location your-bedroom)
 #+END_SRC
 
 This means that the player will start in the node marked as
