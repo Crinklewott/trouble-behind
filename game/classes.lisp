@@ -59,6 +59,20 @@
     :initform '(an ominouns-looking man. you probably "don't" want to
                 mess with him.)
     :accessor npc-description
+    :type list)
+   (punishment-begin-messages
+    :documentation "A list of messages to randomly pick from when this
+    NPC starts spanking a player."
+    :initarg :punishment-begin-messages
+    :initform '(he begins your punishment!)
+    :accessor npc-begin-punishment-messages
+    :type list)
+   (punishment-messages
+    :documentation "A list of messages to randomly pick from when this
+    NPC is in the middle of spanking a player."
+    :initarg :punishment-messages
+    :initform '("SMACK!")
+    :accessor npc-punishment-messages
     :type list))
   (:documentation "An NPC is a type of actor that has AI driving
   it. Each active NPC shoukd be added to the *npcs* list below when

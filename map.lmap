@@ -171,7 +171,16 @@
        '(you are in a long hallway. a blanket hanging from the broken
 	 window sways gently in the wind.))
       (connect-places 'hallway 'east 'back-yard 'west 'blanket))))))
- (npcs ((person bedroom)))
+ (npcs ((person bedroom
+                '((Person smacks your bare bottom with a hairbrush!)
+                  (Person starts hairbrushing you really hard!)
+                  (Your bottom is on fire as Person unleashes a fury of smacks with his hairbrush!)
+                  (Ouch! Person starts to spank you with his hairbrush!)
+                  (Person swats your exposed bottom with a heavy hairbrush!)
+                  (Person lays you over his knee and starts raining down his hellish hairbrush on your bottom!)
+                  ("Person's" hairbrush starts making quick work of your sore bottom!)
+                  ("SMACK!" Person begins your punishment with a hairbrush!))
+                '(("SWAT!") ("SMACK!") ("SLAP!!") ("SLAP! SLAP! SLAP!") ("THWACK!") ("KRACK!") ("PAN! PAN!")))))
  (spunk-messages
   ((100 '(Ow))
    (90 '(Ouch!) '(Yip!) '(Ugh!) '(Whoop!) '(That hurt!) '(Guh!) '(Oh no))
@@ -185,7 +194,5 @@
    (30 '("WAHHH!") '("EEEEEK!") '("YEOOWCH!") '("GAHH!") '("DAMMIT!") '("IEEEEEE!")
        '("OUUUUCH!"))
    (20 '("NOOOOO!") '("LET" "GO" "OF" "ME!!") '("WAAAAAHHHH!") '("S-STOP" "STOOOOP!")
-       '("AAAAAAAAHHHHH!") '("I'LL" "BE" "GOOD!") '("UUUUUUUUUHHHHHH" *sniff*)
-       '("I" "HAAAATE" "YOU!!"))
-   (10 '(*bitter sobbing*) '(*incomprehensable*) '("I'LL" "BE" "GOOOOOD!!!")
-       '("I" "HAATE" "YOU!" "I" "HAAAATE" "YOU!!!")))))
+       '("AAAAAAAAHHHHH!") '("I'LL" "BE" "GOOD!") '("UUUUUUUUUHHHHHH" *sniff*))
+   (10 '(*bitter sobbing*) '(*incomprehensable*) '("I'LL" "BE" "GOOOOOD!!!")))))

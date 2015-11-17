@@ -65,9 +65,7 @@ performs the respective game commands passed in."
 (defun get-spunk-message (num)
   "Gets a spunk message based on the passed-in number"
   (flet ((in-range (spunk)
-           (< (abs (- num (car spunk))) 10))
-         (pick (list)
-           (nth (random (length list)) list)))
+           (< (abs (- num (car spunk))) 10)))
     (if (< 0 num)
         (cadr (pick (cdar (remove-if-not #'in-range (get-spunk-messages)))))
         '("..."))))
