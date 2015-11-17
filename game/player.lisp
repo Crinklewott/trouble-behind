@@ -78,7 +78,10 @@ output."
      then (read-from-string (concatenate 'string "(" (read-line) ")"))
      when (or (eq (car input) 'quit)
               (and (<= (player-spunk *player*) 0)
-                   (princ "You collapse into a sobbing heap. Game over!")))
+                   (progn
+                     (format t "You collapse into a sobbing heap. Game over!~%You scored ~d trouble points."
+                             (player-trouble-points *player*))
+                     t)))
      return t
      do (progn
           (handle-player input)
