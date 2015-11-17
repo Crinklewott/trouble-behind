@@ -62,9 +62,16 @@
     :type list)
    (blocking-direction
     :documentation "The direction this NPC is blocking."
-    :initarg :blocking
+    :initarg :blocking-direction
     :accessor npc-direction
     :type symbol)
+   (blocking
+    :documentation "Whether or not this NPC is blocking the player in
+    the direction of blocking-direction"
+    :initarg :blocking
+    :initform nil
+    :accessor npc-blocking
+    :type boolean)
    (punishment-begin-messages
     :documentation "A list of messages to randomly pick from when this
     NPC starts spanking a player."

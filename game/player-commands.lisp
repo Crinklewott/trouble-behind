@@ -24,8 +24,14 @@
   (let ((edge (assoc direction (get-edges (actor-location *player*)))))
     (if edge
         (if (zerop (random (1+ (length (player-removed-clothes *player*)))))
-            (progn (setf (actor-location *player*) (cadr edge))
-                   (look))
+            (let ((blocking (find-if (lambda (npc)
+                                       (and (npc-blocking npc)
+                                            (eq direction (npc-direction npc))))
+                                     *npcs*)))
+              (if blocking
+                  `(,(actor-name blocking) blocks your path!)
+                  (progn (setf (actor-location *player*) (cadr edge))
+                         (look))))
             `(your pulled-down
                    ,(car (player-removed-clothes *player*))
                    trips you! you should probably pull them up.))

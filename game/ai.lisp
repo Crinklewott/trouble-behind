@@ -150,6 +150,7 @@ and psychic way)"
 
 (defmethod npc-ai (npc (motive (eql 'spank-player)))
   "The NPC motive code for angry NPCs that want to spank the player."
+  (setf (npc-blocking npc) t)
   (if (eq (actor-inventory npc)
           (item-location 'player))
       (if (player-clothes *player*)
