@@ -524,6 +524,10 @@ collapse in a mess of tears. This, of course is game over.
 If the NPC is not grabbing any players, it sets the [[grab-player]]
 motivation first.
 
+This motivation is very aggressive, so if you plan to use it a lot,
+make sure your players have a fighting chance to get away by creating
+events that set the "[[dazed]]" status one or more times.
+
 *** dazed
 The dazed motivation will make the NPC pause momentarily, and then set
 the [[spank-player]] motivation.
@@ -563,4 +567,4 @@ implicit "=0=" that is set to the message "=...=".
 
 
 * Metadata                                                         :noexport:
-#  LocalWords:  Eg LocalWords NPCs NPC npcs npc
+#  LocalWords:  Eg LocalWords NPCs NPC npcs npc Aaahh
