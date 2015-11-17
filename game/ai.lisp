@@ -81,17 +81,20 @@ NPC walked from some location to their current location."
   (flet ((get-direction (source destination)
 	   (caar (remove-if-not (lambda (x) (eq destination (cadr x)))
 				(get-edges source)))))
+    (setf (npc-direction npc) nil)
     (let ((destination (actor-location npc)))
       (if (eq (actor-location *player*) source)
 	  (unless (eq (actor-location *player*) destination)
-	    (let ((direction (get-direction source destination)))
-	      (princ-stylized-list
+	    (let ((direction (setf (npc-direction npc)
+                                   (get-direction source destination))))
+              (princ-stylized-list
 	       `(you see ,(actor-name npc) walk to the ,direction))))
           (progn
             (unless (eq source destination)
               (npc-alert-players-in-range npc))
             (when (eq (actor-location *player*) destination)
-              (let ((direction (get-direction destination source)))
+              (let ((direction (setf (npc-direction npc)
+                                     (get-direction destination source))))
                 (princ-stylized-list
                  `(,(actor-name npc) enters from the ,direction)))))))))
 

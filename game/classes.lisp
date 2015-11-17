@@ -60,6 +60,11 @@
                 mess with him.)
     :accessor npc-description
     :type list)
+   (blocking-direction
+    :documentation "The direction this NPC is blocking."
+    :initarg :blocking
+    :accessor npc-direction
+    :type symbol)
    (punishment-begin-messages
     :documentation "A list of messages to randomly pick from when this
     NPC starts spanking a player."
