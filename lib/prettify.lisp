@@ -29,7 +29,7 @@ formatting from a string."
 
 (defun stylize-list (list)
   "Stylizes a list as a pretty string."
-  (stylize-string (string-trim "()" (princ-to-string list))))
+  (stylize-string (string-trim "()" (prin1-to-string list))))
 
 (defun princ-stylized-list (list)
   "Princs a stylized list with proper capitalization and stuff."
