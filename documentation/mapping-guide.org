@@ -38,7 +38,7 @@ Which would output as:
   This is what I mean, right here...
 #+END_EXAMPLE
 
-The [[./map.lmap][entire map]] is composed of these expressions, and each section of
+The [[../map.lmap][entire map]] is composed of these expressions, and each section of
 the map has a particular meaning to the game engine. So, any changes
 you make to the map will be automagically used in the game.
 
