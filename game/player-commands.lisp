@@ -23,9 +23,13 @@
   "Makes the player walk a specific direction if possible."
   (let ((edge (assoc direction (get-edges (actor-location *player*)))))
     (if edge
-	(progn (setf (actor-location *player*) (cadr edge))
-	       (look))
-	`(i cannot see anywhere ,direction of here.))))
+        (if (zerop (random (1+ (length (player-removed-clothes *player*)))))
+            (progn (setf (actor-location *player*) (cadr edge))
+                   (look))
+            `(your pulled-down
+                   ,(car (player-removed-clothes *player*))
+                   trips you! you should probably pull them up.))
+        `(i cannot see anywhere ,direction of here.))))
 
 (defun inventory ()
   "Returns the player's inventory"
@@ -37,17 +41,17 @@
   "Lets the player pick up an item and put it in their inventory."
   (if (can-see-item item (actor-location *player*))
       (if (member item (inventory))
-	  '(you already have that.)
-	  (let ((excuse (cadr (get-item item))))
-	    (if (not excuse)
-		(progn (push (cons item 'inventory) *item-locations*)
-		       `(you pick up the ,item))
-	        excuse)))
+          '(you already have that.)
+          (let ((excuse (cadr (get-item item))))
+            (if (not excuse)
+                (progn (push (cons item 'inventory) *item-locations*)
+                       `(you pick up the ,item))
+                excuse)))
       `(you cannot see ,(a/an item) ,item from here.)))
 
 (defun drop (item)
   "Lets the player drop an item at their current location"
   (if (member item (inventory))
       (progn (push (cons item (actor-location *player*)) *item-locations*)
-	     `(you drop the ,item on the floor.))
+             `(you drop the ,item on the floor.))
       `(you dont have that.)))

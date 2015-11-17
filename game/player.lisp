@@ -34,6 +34,10 @@ performs the respective game commands passed in."
                   (nw '(northwest))
                   (se '(southeast))
                   (sw '(southwest)))))
+      ((pull)
+       (if (player-removed-clothes *player*)
+           `(you pull up your ,(car (push (pop (player-removed-clothes *player*)) (player-clothes *player*))))
+           '(you have nothing to pull up!)))
       (otherwise
        (cond
          ((member command
