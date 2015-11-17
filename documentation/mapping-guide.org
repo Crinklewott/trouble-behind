@@ -1,5 +1,9 @@
 #+TITLE:Trouble Behind mapping guide
 #+AUTHOR:thingywhat
+:SETTINGS:
+#+DRAWERS:SETTINGS
+#+STARTUP hidestars
+:END:
 
 Trouble Behind has a pretty extensive map system composed entirely of
 [[http://en.wikipedia.org/wiki/S-expression][S-Expressions]] (Just a bunch of nested lists).
@@ -39,6 +43,8 @@ the map has a particular meaning to the game engine. So, any changes
 you make to the map will be automagically used in the game.
 
 Below is a description of each part of the map:
+
+
 * player-location
 This is a two-item list to indicate where the player should start the
 game...
@@ -51,6 +57,7 @@ The default is:
 This means that the player will start in the node marked as
 "=your-bedroom=".
 
+
 * nodes
 This alist contains descriptions for the locations in the map...
 
@@ -61,6 +68,7 @@ For example:
 
 This means that =your-bedroom= will be described as mentioned in the
 list when you enter the room or =look= around.
+
 
 * edges
 =edges= contains an alist of lists that tells what each room is
@@ -77,6 +85,7 @@ This means that the =hallway= is connected to =your-bedroom= by a
 
 So, from the hallway, the player can "=walk south=" to get to the
 =living-room= node, or "=walk east=" to go to =your-bedroom=.
+
 
 * items
 The =items= alist contains a list of items you can see in the game
@@ -107,6 +116,7 @@ For example:
 This would define a vase item that, when you try to obtain it, would
 tell you that it is too high for you to reach.
 
+
 * item-details
 This alist contains the default locations you'll find items you can
 take, along what they look like when undisturbed by the player.
@@ -127,6 +137,7 @@ followed by any other items in the room currently...
 As soon as the item is picked up, you will never see this description
 again, even if you drop the item in the same room it started in.
 Rather, the generic "There is a blanket on the floor here." will be shown.
+
 
 * events
 This is the place you can define the actions a player can take and
@@ -298,8 +309,8 @@ This is displayed when the player throws the baseball at the clock
 when the above conditions are met...
 
 ** Sixth form
-The sixth and final form is optional... But if you specify it, it is
-any code inside of a list you wish to execute after the event has been
+The sixth form is optional... But if you specify it, it is any code
+inside of a list you wish to execute after the event has been
 triggered successfully.
 
 There is are a few convenience functions for this, but you would need
@@ -396,6 +407,28 @@ they are holing onto them... For example:
 This would move the =shard= item from wherever it started into the
 player's inventory.
 
+*** NPC control
+You can control NPCs by setting their motivations using =setf=:
+
+#+BEGIN_SRC lisp
+  ((baseball person) 1000 3
+   (when-player can see baseball and can see person)
+   (person screams as your baseball hits its mark--then turns to
+           face you with an incredible amount of anger. this was probably a
+           really bad idea.)
+   ((item-is-now-at 'baseball location)
+    (setf (npc-motives (car *npcs*)) '(spank-player)))
+   t)
+#+END_SRC
+
+For more details, see the npc [[Motivations]] section.
+
+** Seventh form
+The seventh form is probably the simplest... It's either nothing, or
+"=t=". When it isn't there, the event can only be completed once,
+however, when it exists and is "=t=", the event can be run as many
+times as the conditions in the [[Fourth form][fourth form]] have been satisfied.
+
 ** Putting it all together
 With all of the above, consider the following form:
 
@@ -426,18 +459,26 @@ This entire action means:
   player inventory after they throw it.)
 - If any NPC is within 2 rooms of this event occurring, they will
   notice it.
+- This event will only happen once.
+
 
 * npcs
 The =npcs= section of the map is an alist that references the NPC name
-with their starting location.
+with their starting location and two lists of lists for angry NPCs
+when they try to punish players.
 
 For example:
 #+BEGIN_SRC lisp
-  (person bedroom)
+  (person bedroom
+          '((Person smacks your bare bottom with a hairbrush!))
+          '(("SWAT!") ("SMACK!") ("SLAP!!") ("SLAP! SLAP! SLAP!") ("THWACK!")))
 #+END_SRC
 
 This would define an NPC called "=person=" who starts in the
-"=bedroom=" node on the map.
+"=bedroom=" node on the map, and when angered, will display a random
+message in the third form when they catch the player (Though currently
+there is only one here for the sake of a short example), and each time
+they hit the player, will display a random message in the fourth form.
 
 Currently NPCs only have three potential actions: Either they will
 occasionally move from one node to another neighbouring one, will walk
@@ -448,9 +489,78 @@ Destination nodes are currently set when an NPC notices an event
 occurring. (IE: They are in range of the event's alert specified by
 the [[Third form][third form]].)
 
-There are currently three AI motivations: "=find-player=", which makes
+** Motivations
+NPC motivations can be set by the player in the [[events]] section of the
+map... They can be seen as kind of "modes" that change how NPCs
+behave...
+
+There are currently six AI motivations: "=find-player=",
+=grab-player=, =investigate=, =spank-player=, and =dazed=:
+
+*** find-player
+Hunts the player down, then removes itself from motivations.
+
+
+which makes
 the AI seek out the player. =grab-player=, which sets the
 =find-player= motivation if they can't see the player, or if they can,
-restrains them. Or =investigate=, which investigates their current
+restrains them. =investigate=, which investigates their current
 node for actions complete, and reacts
 accordingly. (Increasing/decreasing anger, etc...)
+
+*** grab-player
+Attempts to restrain the player, and if the NPC can't see the player,
+it sets the [[find-player]] motivation until it has found the player.
+
+*** investigate
+The NPC travels to the site of an event, and gets angry if it finds a
+bad event.
+
+*** spank-player
+When grabbing a player, spank-player is a motivation that will make
+the NPC remove the player's clothing and spank them until they
+collapse in a mess of tears. This, of course is game over.
+
+If the NPC is not grabbing any players, it sets the [[grab-player]]
+motivation first.
+
+*** dazed
+The dazed motivation will make the NPC pause momentarily, and then set
+the [[spank-player]] motivation.
+
+
+
+* spunk-messages
+"Spunk" is how determined the player is to cause trouble... It is
+kinda like health in this game...
+
+Spunk messages are messages that play when a player's spunk gets
+decreased by NPC punishment.
+
+The way it is laid out is as a list of lists, with the first item of
+each sub-list being the health rounded up to the nearest =10=, and any
+following lists being the messages that will be randomly picked to be
+displayed for each:
+#+BEGIN_SRC lisp
+  (spunk-messages
+   ((100 '(Ow) '(Yip!))
+    (90 '(Ouch!))
+    (80 '(Geh!))
+    (70 '(Wah!))
+    (60 '("OW!"))
+    (50 '(Aaahh!))
+    (40 '("OUCH!"))
+    (30 '("WAHHH!"))
+    (20 '("WAAAAAHHHH!"))
+    (10 '(*bitter sobbing*))))
+#+END_SRC
+
+In the above example, if the player has anywhere between 100 and 90
+spunk, either "Ow" or "Yip!" will be displayed when they are
+punished. As spunk goes down, the lower down the list it starts
+picking. You can numbers between for finer control, and there is an
+implicit "=0=" that is set to the message "=...=".
+
+
+* Metadata                                                         :noexport:
+#  LocalWords:  Eg LocalWords NPCs NPC npcs npc
