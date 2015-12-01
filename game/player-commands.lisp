@@ -61,3 +61,10 @@
       (progn (push (cons item (actor-location *player*)) *item-locations*)
              `(you drop the ,item on the floor.))
       `(you dont have that.)))
+
+(defun hide (location item)
+  "Lets the player hide somewhere."
+  (if (eq (actor-location *player*) (car item))
+      (progn (setf (player-hidden *player*) (caddr item))
+             `(you are now hiding ,location the ,(cadr item)))
+      `(you cannot see that...)))

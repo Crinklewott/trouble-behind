@@ -116,6 +116,12 @@
     :initarg :undressed
     :initform '()
     :accessor player-removed-clothes
-    :type list))
+    :type list)
+   (hidden
+    :documentation "How hidden is the player?"
+    :initarg :hidden
+    :initform 0
+    :accessor player-hidden
+    :type number))
   (:documentation "The player class is a type of actor that is
   controlled by a human."))

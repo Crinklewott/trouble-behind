@@ -36,8 +36,14 @@ performs the respective game commands passed in."
                   (sw '(southwest)))))
       ((pull)
        (if (player-removed-clothes *player*)
-           `(you pull up your ,(car (push (pop (player-removed-clothes *player*)) (player-clothes *player*))))
+           `(you pull up your ,(car (push (pop (player-removed-clothes *player*))
+                                          (player-clothes *player*))))
            '(you have nothing to pull up!)))
+      ((hide)
+       (hide (cadr input)
+             (find-if
+              (lambda (hiding-place) (find (cadr hiding-place) (cddr input)))
+              (get-hiding-place (cadr input)))))
       (otherwise
        (cond
          ((member command
