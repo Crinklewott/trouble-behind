@@ -125,6 +125,16 @@
    (laundry (laundry-room (some wet clothing is hanging from the
                                 ceiling.)))))
 
+ (hiding-places
+  ((under (your-bedroom bed 7)
+          (bedroom bed 7)
+          (your-bedroom covers 0)
+          (kitchen counter 3)
+          (dining-room table 2))
+   (behind (your-bedroom bed 2)
+           (living-room recliner 3)
+           (laundry clothes 1)
+           (washroom curtains 3))))
  (events
   ((throw
      ((baseball clock) 10 2

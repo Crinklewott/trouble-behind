@@ -57,6 +57,7 @@ individual item"
    (defmap *map* item-details get-item-details get-item-detail)
    (defmap *map* events get-event-list get-event)
    (defmap *map* spunk-messages get-spunk-messages get-spunk-message)
+   (defmap *map* hiding-places get-hiding-places get-hiding-place)))
 
 (defun pick (list)
   "Gets a random item from the passed in list"
