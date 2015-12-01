@@ -110,6 +110,12 @@ NPC walked from some location to their current location."
     (setf (actor-location npc) (pop (npc-path npc)))
     (display-walk source npc)))
 
+(defun npc-can-see-player (npc)
+  "A function that determines if an NPC can see the player, based on
+their location and hiding level."
+  (and (eq (actor-location npc) (actor-location *player*))
+       (< (player-hidden *player*) (random 10))))
+
 (defmethod npc-ai (npc motive)
   "The basic NPC AI, used when no matching AI is found for the
 current motive:
@@ -131,22 +137,28 @@ and psychic way)"
   (if (and (npc-path npc)
            (not (eq (actor-location npc) (actor-location *player*))))
       (npc-follow-path npc)
-      (progn (setf (npc-path npc)
-                   (cdr (get-path (actor-location npc) (actor-location *player*))))
-             (npc-ai npc 'find-player)))
-  (when (eq (actor-location npc) (actor-location *player*))
+      (progn
+        (setf (npc-path npc)
+              (if (eq (actor-location npc) (actor-location *player*))
+                  (list (pick (mapcar #'cadr (get-edges (actor-location npc)))))
+                  (cdr (get-path (actor-location npc) (actor-location *player*)))))
+        (when (not (eq (actor-location npc) (actor-location *player*)))
+          (npc-ai npc 'find-player))))
+  (when (npc-can-see-player npc)
     (pop (npc-motives npc))))
 
 (defmethod npc-ai (npc (motive (eql 'grab-player)))
   "The NPC motive code for when they wish to grab the player."
-  (if (eq (actor-location npc) (actor-location *player*))
+  (if (npc-can-see-player npc)
       (unless (or (zerop (random 2))
                   (eq (item-location 'player)
                       (actor-inventory npc)))
         (push (cons 'player (actor-inventory npc)) *item-locations*)
         (princ-stylized-list `(,(actor-name npc) grabs ahold of you!))
         (pop (npc-motives npc)))
-      (npc-ai npc (car (push 'find-player (npc-motives npc))))))
+      (progn (when (eq (actor-location npc) (actor-location *player*))
+               (princ-stylized-list `(,(actor-name npc) starts looking around.)))
+        (npc-ai npc (car (push 'find-player (npc-motives npc)))))))
 
 (defmethod npc-ai (npc (motive (eql 'spank-player)))
   "The NPC motive code for angry NPCs that want to spank the player."
@@ -162,7 +174,7 @@ and psychic way)"
                    (princ-stylized-list (pick (cadr (npc-begin-punishment-messages npc)))))
                  (princ-stylized-list (pick (cadr (npc-punishment-messages npc))))
                  (decf (player-spunk *player*) (random 10))
-                 (princ-stylized-list (get-spunk-message (player-spunk *player*)))))
+                 (princ-stylized-list (get-player-spunk-message (player-spunk *player*)))))
       (npc-ai npc (car (push 'grab-player (npc-motives npc))))))
 
 (defmethod npc-ai (npc (motive (eql 'dazed)))

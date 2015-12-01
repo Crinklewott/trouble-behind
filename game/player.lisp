@@ -72,7 +72,7 @@ performs the respective game commands passed in."
                `(you "can't" move! ,(actor-name holding-npc) is holding onto
                      you tightly! try to struggle to get away!)))))))
 
-(defun get-spunk-message (num)
+(defun get-player-spunk-message (num)
   "Gets a spunk message based on the passed-in number"
   (flet ((in-range (spunk)
            (< (abs (- num (car spunk))) 10)))

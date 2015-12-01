@@ -23,19 +23,21 @@
   "Makes the player walk a specific direction if possible."
   (let ((edge (assoc direction (get-edges (actor-location *player*)))))
     (if edge
-        (if (zerop (random (1+ (length (player-removed-clothes *player*)))))
-            (let ((blocking (find-if (lambda (npc)
-                                       (and (npc-blocking npc)
-                                            (eq direction (npc-direction npc))))
-                                     *npcs*)))
-              (if blocking
-                  `(,(actor-name blocking) blocks your path!)
-                  (progn (setf (actor-location *player*) (cadr edge))
-                         (look))))
-            `(your pulled-down
-                   ,(car (player-removed-clothes *player*))
-                   trips you! you should probably pull them up.))
-        `(i cannot see anywhere ,direction of here.))))
+        (progn
+          (setf (player-hidden *player*) 0)
+          (if (zerop (random (1+ (length (player-removed-clothes *player*)))))
+              (let ((blocking (find-if (lambda (npc)
+                                         (and (npc-blocking npc)
+                                              (eq direction (npc-direction npc))))
+                                       *npcs*)))
+                (if blocking
+                    `(,(actor-name blocking) blocks your path!)
+                    (progn (setf (actor-location *player*) (cadr edge))
+                           (look))))
+              `(your pulled-down
+                     ,(car (player-removed-clothes *player*))
+                     trips you! you should probably pull them up.)))
+        `(you cannot see anywhere ,direction of here.))))
 
 (defun inventory ()
   "Returns the player's inventory"
@@ -65,6 +67,7 @@
 (defun hide (location item)
   "Lets the player hide somewhere."
   (if (eq (actor-location *player*) (car item))
-      (progn (setf (player-hidden *player*) (caddr item))
+      (progn (unless (find (actor-location *player*) (mapcar #'actor-location *npcs*))
+               (setf (player-hidden *player*) (caddr item)))
              `(you are now hiding ,location the ,(cadr item)))
       `(you cannot see that...)))
