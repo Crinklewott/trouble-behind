@@ -1,0 +1,211 @@
+#+TITLE:Trouble Behind
+#+AUTHOR:thingywhat
+:SETTINGS:
+#+DRAWERS:SETTINGS
+#+STARTUP:hidestars
+:END:
+
+Trouble Behind is a moddable trouble sim game where the goal is to
+cause the most mayhem in the world as possible without getting
+spanked by a furious NPC.
+
+*NOTE:* This game is still in early alpha stages. While you can create
+scenarios according to the [[./documentation/mapping-guide.org][Mapping Guide]] and have a lot of
+functionality, (even complete games), there is no guarantee that the
+mapping API won't change in the future. Also, while the engine is
+currently strictly text-based, it was written with extension in mind,
+so it is fully possible that future versions may allow for a fully
+graphical interface.
+
+* Setting up
+#+BEGIN_NOTE
+  *NOTE*: This process will not be required for the final game, only
+   for development.
+#+END_NOTE
+
+Trouble behind is incredibly limited in it's [[./map.lmap][current world]] (Because
+that is not my primary focus until I have the AI and game mechanics
+100% complete). However, if you wanted to experiment with the world
+and development tools, you'll need to know how to set up the game to
+play it.
+
+To use trouble-behind, you will need to have a Lisp implementation. I
+personally recommend [[http://www.sbcl.org/][SBCL]]. (It is what I used in the creation of the
+game.) It is the implementation all instructions from here on out will
+assume, though if you are adamant, [[HTTP://sourceforge.net/projects/clisp/][CLISP]] (Or any other conforming
+Common Lisp) should work as well if you know your way around a REPL.
+
+After you have SBCL, you'll need to install [[https://www.quicklisp.org/beta/][Quicklisp]] according to the
+instructions on the linked page. After you have Quicklisp, add the
+following to your =.sbclrc= file (Which is located at the place spat
+out by SBCL when you run ~(sb-impl::userinit-pathname)~ in it.):
+
+#+BEGIN_SRC lisp
+  (push (pathname "/path/to/trouble-behind") ql:*local-project-directories*)
+#+END_SRC
+
+Of course, replace =/path/to/trouble-behind= with the actual path to
+trouble-behind. (And *don't* put a "=/=" at the end of the path.)
+
+After you have that in there, whenever you start SBCL from now on, you
+can get into the trouble-behind package by running:
+
+#+BEGIN_SRC lisp
+  (ql:quickload "trouble-behind")
+  (in-package :io.github.thingywhat.trouble-behind)
+#+END_SRC
+
+The first command loads the system from the
+=ql:*local-project-directories*= you set in your configuration file
+above, and the second switches you to the actual package.
+
+To start the game, you can simply run:
+#+BEGIN_SRC lisp
+  (new-game)
+#+END_SRC
+
+The entirety of the world is located in [[./map.lmap][the map file]], which is
+described in the [[./documentation/mapping-guide.org][Mapping Guide]] if you want to make your own tweaks and
+changes. The specification of the world is in [[./planning/map.org][the map plan]] if you
+don't feel like wading through S-Expressions.
+
+If you make a change to [[./map.lmap][map.lmap]] and want to see your changes, you
+will need to run the following:
+
+#+BEGIN_SRC lisp
+  (ql:quickload "trouble-behind")
+  (new-game)
+#+END_SRC
+
+* Playing the game
+As of current, trouble-behind is a text adventure. You can move around
+with cardinal directions by typing =north=, =southeast=, =west=, and
+so on... Alternatively, you can use the abbreviations =n=, =e=, =s=,
+=w=, =nw=, =ne=, =se=, and =sw= to walk in the respective
+direction. Note that NPCs when angry, will block the path from which
+they came from.
+
+You can =look= to see your surroundings, and =look= at items to get a
+better description of them...
+
+You can also =pick up= items, or =drop= them, or type =inventory= (Or
+just =i= to show what you are holding).
+
+If you are being held by an NPC, you can do nothing besides =struggle=
+to attempt to get away. If your pants or underwear have been removed,
+you can =pull= them back up, or else you might trip on them.
+
+You can also quit the game with =quit=.
+
+These are the basics, the rest of the commands are based on context
+and are for you to figure out. You will also need to figure out
+strategies to detect when NPCs are around, because certain actions
+might draw their attention and make them angry.
+
+As of the time of writing, a standard trouble-behind game might look
+like:
+
+#+BEGIN_QUOTE
+TROUBLE-BEHIND> (new-game)
+
+You are in your bedroom. A clock ticks on the wall. There is a door to
+the east of here. There is a cozy blanket on your bed. There is a
+baseball sitting on your desk.
+
+> look baseball
+
+You are not really that good at throwing... But this still looks like
+it can do some damage.
+
+> get baseball
+
+You pick up the baseball
+
+> e
+
+You are in a long hallway. There is a window halfway down the hall on
+the west side. There is a door to the west of here. There is an exit
+to the south of here.
+
+> throw baseball out window
+
+The window shatters into a waterfall of shards! Oh man... You are
+going to be in trouble for this one for sure! The ball descends into
+the tall grass of the yard below.
+
+> w
+
+You are in your bedroom. A broken clock sits sadly on the wall. There
+is a door to the east of here. There is a cozy blanket on your bed.
+
+> get blanket
+
+You pick up the blanket
+
+> e
+
+You are in a long hallway. A brisk wind gusts in from the shattered
+window.  there is a door to the west of here. There is an exit to the
+south of here.
+
+> put blanket out window
+
+You let the blanket droop out the window. It looks like you can climb
+down.
+#+END_QUOTE
+
+The game it quite forgiving in terms of recognizing inputs, and should
+be able to understand most inputs provided specific keywords exist in
+the commands.
+
+* Hacking
+If you feel like hacking on the code of the game itself... The game is
+split up into several sections. Below are a few sections described
+that may be of interest, the rest of the files aren't really
+noteworthy for tweaking the game itself...
+
+** AI
+All code for AI and NPC movement and motivations (As described in the
+[[./documentation/mapping-guide.org][Mapping Guide]]) is located in [[./game/ai.lisp][ai.lisp]]... This file has a simple
+implementation of Dijkstra's algorithm (The distance hash) as well as
+an alphabet soup of NPC functions for various motivations.
+
+More motivations can be added by adding another =npc-ai= method with
+an =eql= specifier for the motive. The code in these motives will be
+run once every turn an NPC has that motivation.
+
+So, if you wanted to add a =scared= motivation, it might look like:
+
+#+BEGIN_SRC lisp
+  (defmethod npc-ai (npc (motive (eql 'scared)))
+    "The NPC motive when they are absolutely terrified!"
+    (when (eq (actor-location npc) (actor-location *player*))
+      (princ-stylized-list `(,(actor-name npc) is shaking uncontrollably!))))
+#+END_SRC
+
+This would run if an NPC had the =scared= motivation.
+
+** Map functions
+The functions that are supposed to make a mapper's life easier are all
+located in [[./game/map-api.lisp][map-api.lisp]].
+
+These functions are essentially just helper functions to simplify the
+logic and condition sections of map events.
+
+** Player functions
+The reader for user input is located in [[./game/player.lisp][player.lisp]], the =case= in
+=game-eval= is where the core non-special command are recognized.
+
+This is also where new games are set up, endgame conditions are
+handled, and limits on players by external sources (Such as NPCs) are
+enforced.
+
+** Development environment
+If you want to set up a development environment for trouble-behind, I
+recommend [[https://www.gnu.org/software/emacs/][Emacs]] with [[http://capitaomorte.github.io/sly/][SLY]]. If you have already set up trouble-behind as
+described above, then setting up SLY or SLIME with Emacs should get
+you a full development environment out of the box.
+
+If you make any changes that you feel would be noteworthy enough that
+they should be included in the primary release of trouble-behind, feel
+free to send me a [[https://github.com/thingywhat/trouble-behind/pulls][pull request!]]
