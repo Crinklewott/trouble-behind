@@ -1,33 +1,5 @@
 (in-package :io.github.thingywhat.trouble-behind)
 
-;; Dynamically loads things from the map
-(defmacro defmap (entry getter-name fetcher-name)
-  "Defines a get-all-<things> function to fetch the alist for some
-specific thing from the loaded map and get-<things> to fetch an
-individual item"
-  `(let ((,entry (cadr (assoc ',entry *map*))))
-     (defun ,fetcher-name (key)
-       (cdr (assoc key ,entry)))
-     (defun (setf ,fetcher-name) (new-value key)
-       (setf ,entry (mapcar (lambda (item) (if (eq key (car item))
-					       (cons (car item) new-value)
-					       item))
-			    ,entry)))
-     (defun ,getter-name ()
-       ,entry)
-     (defun (setf ,getter-name) (new-value)
-       (setf ,entry new-value))))
-
-
-;; Load each type of map item we care about and creates a whole mess
-;; of utility functions
-(defmap nodes get-nodes get-node)
-(defmap edges get-all-edges get-edges)
-(defmap items get-items get-item)
-(defmap item-details get-item-details get-item-detail)
-(defmap events get-event-list get-event)
-(defmap spunk-messages get-spunk-messages get-spunk-message)
-
 ;; Querying
 (defun item-location (item)
   "Fetches the location of an item"
