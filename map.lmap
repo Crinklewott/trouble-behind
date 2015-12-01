@@ -168,7 +168,7 @@
       face you with an incredible amount of anger. this was probably a
       really bad idea.)
       ((item-is-now-at 'baseball location)
-       (setf (npc-motives (car *npcs*)) '(spank-player)))
+       (setf (npc-motives (car *npcs*)) '(dazed spank-player)))
       t))
 
    (put

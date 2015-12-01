@@ -61,7 +61,8 @@ performs the respective game commands passed in."
     (let ((holding-npc (car (remove-if-not #'holding-player-p *npcs*))))
       (if (null holding-npc)
           (princ-stylized-list (game-eval (remove-if #'fluff-word-p input)))
-          (if (eq (car input) 'struggle)
+          (if (or (eq 's (car input))
+                  (eq 'struggle (car input)))
               (if (zerop (random 10))
                   (progn
                     (push (cons 'player 'free) *item-locations*)

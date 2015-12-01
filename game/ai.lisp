@@ -113,8 +113,10 @@ NPC walked from some location to their current location."
 (defun npc-can-see-player (npc)
   "A function that determines if an NPC can see the player, based on
 their location and hiding level."
-  (and (eq (actor-location npc) (actor-location *player*))
-       (< (player-hidden *player*) (random 10))))
+  (let ((found (and (eq (actor-location npc) (actor-location *player*))
+                    (< (player-hidden *player*) (random 10)))))
+    (when found
+      (setf (player-hidden *player*) 0))))
 
 (defmethod npc-ai (npc motive)
   "The basic NPC AI, used when no matching AI is found for the
@@ -173,7 +175,7 @@ and psychic way)"
           (progn (when (= (player-spunk *player*) 100)
                    (princ-stylized-list (pick (cadr (npc-begin-punishment-messages npc)))))
                  (princ-stylized-list (pick (cadr (npc-punishment-messages npc))))
-                 (decf (player-spunk *player*) (random 10))
+                 (decf (player-spunk *player*) (1+ (random 10)))
                  (princ-stylized-list (get-player-spunk-message (player-spunk *player*)))))
       (npc-ai npc (car (push 'grab-player (npc-motives npc))))))
 
@@ -181,7 +183,7 @@ and psychic way)"
   "The NPC motive when they get dazed"
   (when (eq (actor-location npc) (actor-location *player*))
     (princ-stylized-list `(,(actor-name npc) staggers!)))
-  (push 'spank-player (npc-motives npc)))
+  (pop (npc-motives npc)))
 
 (defmethod npc-ai (npc (motive (eql 'investigate)))
   "Investigates the current location, or the location at the end of
