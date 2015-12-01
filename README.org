@@ -7,21 +7,21 @@
 
 Trouble Behind is a moddable trouble sim game where the goal is to
 cause the most mayhem in the world as possible without getting
-spanked by a furious NPC.
+spanked by furious NPCs.
 
-*NOTE:* This game is still in early alpha stages. While you can create
-scenarios according to the [[./documentation/mapping-guide.org][Mapping Guide]] and have a lot of
-functionality, (even complete games), there is no guarantee that the
+*NOTE:* This game is still in early alpha stages. While you /can/
+create scenarios according to the [[./documentation/mapping-guide.org][Mapping Guide]] and have a lot of
+functionality, (even complete games!), there is no guarantee that the
 mapping API won't change in the future. Also, while the engine is
 currently strictly text-based, it was written with extension in mind,
-so it is fully possible that future versions may allow for a fully
+so it is fully possible that future versions /may/ allow for a fully
 graphical interface.
 
 * Setting up
-#+BEGIN_NOTE
+#+BEGIN_QUOTE
   *NOTE*: This process will not be required for the final game, only
    for development.
-#+END_NOTE
+#+END_QUOTE
 
 Trouble behind is incredibly limited in it's [[./map.lmap][current world]] (Because
 that is not my primary focus until I have the AI and game mechanics
@@ -36,9 +36,11 @@ assume, though if you are adamant, [[HTTP://sourceforge.net/projects/clisp/][CLI
 Common Lisp) should work as well if you know your way around a REPL.
 
 After you have SBCL, you'll need to install [[https://www.quicklisp.org/beta/][Quicklisp]] according to the
-instructions on the linked page. After you have Quicklisp, add the
-following to your =.sbclrc= file (Which is located at the place spat
-out by SBCL when you run ~(sb-impl::userinit-pathname)~ in it.):
+instructions on the linked page. (Don't forget to =(ql:add-to-init)=!)
+
+After you have Quicklisp, add the following to the end of your
+=.sbclrc= file (Which is located at the place spat out by SBCL when
+you run ~(sb-impl::userinit-pathname)~ in it.):
 
 #+BEGIN_SRC lisp
   (push (pathname "/path/to/trouble-behind") ql:*local-project-directories*)
@@ -167,8 +169,8 @@ noteworthy for tweaking the game itself...
 ** AI
 All code for AI and NPC movement and motivations (As described in the
 [[./documentation/mapping-guide.org][Mapping Guide]]) is located in [[./game/ai.lisp][ai.lisp]]... This file has a simple
-implementation of Dijkstra's algorithm (The distance hash) as well as
-an alphabet soup of NPC functions for various motivations.
+implementation of [[https://en.wikipedia.org/wiki/Dijkstra's_algorithm][Dijkstra's algorithm]] as well as an alphabet soup of
+NPC functions for various motivations.
 
 More motivations can be added by adding another =npc-ai= method with
 an =eql= specifier for the motive. The code in these motives will be
