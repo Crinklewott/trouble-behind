@@ -139,6 +139,52 @@ again, even if you drop the item in the same room it started in.
 Rather, the generic "There is a blanket on the floor here." will be shown.
 
 
+* hiding-places
+The hiding places section is a list of places players can hide. Let's
+look at a form directly, because it is pretty straightforward:
+
+#+BEGIN_SRC lisp
+  (hiding-places
+    ((under (your-bedroom bed 7)
+            (bedroom bed 7)
+            (your-bedroom covers 0)
+            (kitchen counter 3)
+            (dining-room table 2))
+     (behind (your-bedroom bed 2)
+             (living-room recliner 3)
+             (laundry clothes 1)
+             (washroom curtains 3))))
+#+END_SRC
+
+=hiding-places= contains a list of lists, with each item in the
+sublist being the place to hide. For example, in the above form, the
+two places are "=under=" and "=behind=".
+
+Each of these places can have any number of lists as to where that
+hiding place applies. Each of these lists is split up into three
+parts, the node where the hiding place resides, the item that it
+references, and the "hidden" value (Which is a number from 0 to 10
+denoting how good a hiding place is, with 0 being not hidden at all,
+and 10 making you impossible to detect.).
+
+So, for example, one of these lists might look like:
+#+BEGIN_SRC lisp
+  (your-bedroom bed 7)
+#+END_SRC
+
+This defines a hiding place under the "=bed=" in the "=your-bedroom="
+node, with a hiding value of =7=.
+
+Or...
+
+#+BEGIN_SRC lisp
+  (your-bedroom covers 0)
+#+END_SRC
+
+...which lets you hide under the covers of your bed, but is more cute
+than useful.
+
+
 * events
 This is the place you can define the actions a player can take and
 when they can take them...
