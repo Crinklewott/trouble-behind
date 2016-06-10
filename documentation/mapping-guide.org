@@ -546,29 +546,22 @@ There are currently six AI motivations: "=find-player=",
 *** find-player
 Hunts the player down, then removes itself from motivations.
 
-
-which makes
-the AI seek out the player. =grab-player=, which sets the
-=find-player= motivation if they can't see the player, or if they can,
-restrains them. =investigate=, which investigates their current
-node for actions complete, and reacts
-accordingly. (Increasing/decreasing anger, etc...)
-
 *** grab-player
 Attempts to restrain the player, and if the NPC can't see the player,
-it sets the find-player motivation until it has found the player.
+it sets the =find-player= motivation until it has found the player.
 
 *** investigate
-The NPC travels to the site of an event, and gets angry if it finds a
-bad event.
+The NPC travels to the site of an event, and gets angry if it finds
+evidence something bad happened.
 
 *** spank-player
-When grabbing a player, spank-player is a motivation that will make
+When grabbing a player, =spank-player= is a motivation that will make
 the NPC remove the player's clothing and spank them until they
 collapse in a mess of tears. This, of course is game over.
 
-If the NPC is not grabbing any players, it sets the grab-player
-motivation first.
+If the NPC is not grabbing any players, it sets the =grab-player=
+motivation first. (Which will, in turn set =find-player= if they are
+not visible to the NPC)
 
 This motivation is very aggressive, so if you plan to use it a lot,
 make sure your players have a fighting chance to get away by creating
@@ -576,7 +569,7 @@ events that set the "dazed" status one or more times.
 
 *** dazed
 The dazed motivation will make the NPC pause momentarily, and then set
-the spank-player motivation.
+the =spank-player= motivation.
 
 
 * spunk-messages
